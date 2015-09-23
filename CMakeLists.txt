@@ -8,7 +8,7 @@ find_package(SDL2 REQUIRED)
 
 add_executable(GP2BaseCode src/main.cpp include/Common.h)
 include_directories(GP2BaseCode include/ ${SDL2_INCLUDE_DIR} )
-target_link_libraries(GP2BaseCode ${SDL_LIBRARY})
+target_link_libraries(GP2BaseCode ${SDL2_LIBRARY})
 
 if (MSVC)
 add_custom_command(TARGET GP2BaseCode POST_BUILD
