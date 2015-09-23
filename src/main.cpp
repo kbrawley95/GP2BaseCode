@@ -23,7 +23,12 @@ int main(int argc, char * arg[])
 		//while we still have events in the queue
 		while (SDL_PollEvent(&event))
 		{
-
+			//Get Event type
+			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
+			{
+				//set our boolean which controls the loop to false
+				run = false;
+			}
 		}
 	}
 
