@@ -3,4 +3,6 @@
 
 void initOpenGL();
 
+void setViewPort(int width, int height);
+
 #endif

@@ -21,3 +21,34 @@ void initOpenGL()
 	//Turn on best perspective correction
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
+
+void setViewPort(int width, int height)
+{
+	//Screen ration
+	GLfloat ratio;
+
+	//ake sure heigh is always about 1
+	if (height == 0)
+	{
+		height = 1;
+	}
+
+	//calculate screen ration
+	ratio = (GLfloat)width / (GLfloat)height;
+
+	//Setup Viewport
+	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+
+	//Change to project matrix mode
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	//Calculate perspective matrix, using glu library functions
+	gluPerspective(45.0f, ratio, 0.1f, 100.0f);
+
+	//Switch to ModelView
+	glMatrixMode(GL_MODELVIEW);
+
+	//Reset using the Identity Matrix
+	glLoadIdentity();
+}
