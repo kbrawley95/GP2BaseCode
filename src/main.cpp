@@ -15,12 +15,24 @@ void render()
 	glTranslatef(0.0f, 0.0f, -5.0f);
 	//Begin drawing triangles
 	glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 0.0f, 0.0f);	//Color of the vertices
+		glColor3f(1.0f, 0.0f, 1.0f);	//Color of the vertices
+		glVertex3f(-1.0f, 0.0f, 0.0f);	//Top
+		glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
+		glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
+	glEnd();
+
+	//Reset using the Identity Matrix
+	glLoadIdentity();
+	//Translate to 1.0f on the x-axis & -3.0f, on the z-axis
+	glTranslatef(1.0f, 0.0f, -5.0f);
+	//Begin drawing triangles
+	glBegin(GL_TRIANGLES);
+		glColor3f(1.0f, 1.0f, 0.0f);	//Color of the vertices
 		glVertex3f(0.0f, 1.0f, 0.0f);	//Top
 		glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
 		glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
 	glEnd();
-}
+}	
 
 void update()
 {
