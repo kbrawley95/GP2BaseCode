@@ -2,28 +2,31 @@
 
 //Movement Variables
 bool up, down, left, right = false;
-float x, y, z;
-float speed = .5f;
-	
-
+GLfloat x, y, z=0;
+GLfloat speed =.001f;
 void move()
 {
 	if (left)
 	{
-		x -= speed;
-		std::cout << "Well, that just happened" << std::endl;
+		x -=speed;
+		std::cout <<"Moving Left. Position: " << x << std::endl;
 	}
-	else if (right)
+	 
+	if (right)
 	{
 		x += speed;
-	}
-	else if (up)
+		std::cout << "Moving Right. Position: " << x << std::endl;
+	}	
+	
+	if (up)
 	{
 		y += speed;
+		std::cout << speed << std::endl;
 	}
-	else if (down)
+	if (down)
 	{
 		y -= speed;
+		std::cout << speed << std::endl;
 	}
 }
 
@@ -34,12 +37,16 @@ void render()
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glPushMatrix();
 	//Switch to ModelView
 	glMatrixMode(GL_MODELVIEW);
+
+	//||===================================================||
+	//||======================TRIANGLE1====================||
 	//Reset using the Identity Matrix
 	glLoadIdentity();
 	//Translate to -5.0f on z-axis
-	glTranslatef(0.0f, 0.0f, -5.0f);
+	glTranslatef(x, y, -5.0f);
 	//Begin drawing triangles
 	glBegin(GL_TRIANGLES);
 		glColor3f(1.0f, 0.0f, 1.0f);	//Color of the vertices
@@ -47,19 +54,22 @@ void render()
 		glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
 		glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
 	glEnd();
-
-	glPopMatrix();
-		//Translate to 1.0f on the x-axis & -3.0f, on the z-axis
-		glTranslatef(x, y,z);
-		//Begin drawing triangles
-		glBegin(GL_TRIANGLES);
-		glTranslatef(x, y, z);
+	
+	//||===================================================||
+	//||======================TRIANGLE2====================||
+	//Reset using the Identity Matrix
+	glLoadIdentity();
+	//Translate to 1.0f on the x-axis & -3.0f, on the z-axis
+	glTranslatef(0.0f, 0.0f, -5.0f);
+	//Begin drawing triangles
+	glBegin(GL_TRIANGLES);
 			glColor3f(1.0f, 1.0f, 0.0f);	//Color of the vertices
 			glVertex3f(0.0f, 1.0f, 0.0f);	//Top
 			glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
 			glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
-		glEnd();
-	glPushMatrix();
+	glEnd();
+	glPopMatrix();
+
 }	
 
 void update()
@@ -100,12 +110,56 @@ int main(int argc, char * arg[])
 		//while we still have events in the queue
 		while (SDL_PollEvent(&event))
 		{
+			if (event.type == SDL_KEYUP)
+			{
+				std::cout << "Key Released" << std::endl;
+
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_a:
+					left = false;
+					break;
+
+				case SDLK_d:
+					right = false;
+					break;
+
+				case SDLK_w:
+					up= false;
+					break;
+
+				case SDLK_s:
+					down = false;
+					break;
+				}
+			}
+			else if (event.type == SDL_KEYDOWN)
+			{
+				std::cout << "Key Pressed" << std::endl;
+
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_a:
+					left = true;
+					break;
+
+				case SDLK_d:
+					right = true;
+					break;
+
+				case SDLK_w:
+					up = true;
+					break;
+
+				case SDLK_s:
+					down =true;
+					break;
+				}
+			}
+
 			//Get Event type
 			switch (event.type)
 			{
-				if (event.type!=SDL_KEYDOWN)
-				up, down, left, right = false;
-
 			case SDL_QUIT:
 			{
 				//set our boolean which controls the loop to false
@@ -120,62 +174,7 @@ int main(int argc, char * arg[])
 				break;
 			}
 
-			case SDL_KEYDOWN:
-			{
-				switch (event.key.keysym.sym)
-				{
-					case SDLK_a:
-					left = true;
-					std::cout << "keyDown" << std::endl;
-					break;
 
-					case SDLK_d:
-					{
-						right = true;
-						break;
-					}
-
-					case SDLK_w:
-					{
-						up = true;
-						break;
-					}
-					case SDLK_s:
-					{
-						down = true;
-						break;
-					}
-				}
-			}
-
-			case SDL_KEYUP:
-			{
-				switch (event.key.keysym.sym)
-				{
-				case SDLK_a:
-					left = false;
-					std::cout << "keyUp" << std::endl;
-					break;
-
-				case SDLK_d:
-				{
-					right = false;
-					break;
-				}
-
-				case SDLK_w:
-				{
-					up = false;
-					break;
-				}
-				case SDLK_s:
-				{
-					down = false;
-					break;
-				}
-				}
-			}
-				break;
 			}
 
 		}
