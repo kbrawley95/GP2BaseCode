@@ -1,5 +1,32 @@
 #include "Common.h"
 
+//Movement Variables
+bool up, down, left, right = false;
+float x, y, z;
+float speed = .5f;
+	
+
+void move()
+{
+	if (left)
+	{
+		x -= speed;
+		std::cout << "Well, that just happened" << std::endl;
+	}
+	else if (right)
+	{
+		x += speed;
+	}
+	else if (up)
+	{
+		y += speed;
+	}
+	else if (down)
+	{
+		y -= speed;
+	}
+}
+
 void render()
 {
 	//Set the clear colour(background)
@@ -21,22 +48,24 @@ void render()
 		glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
 	glEnd();
 
-	//Reset using the Identity Matrix
-	glLoadIdentity();
-	//Translate to 1.0f on the x-axis & -3.0f, on the z-axis
-	glTranslatef(1.0f, 0.0f, -5.0f);
-	//Begin drawing triangles
-	glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 1.0f, 0.0f);	//Color of the vertices
-		glVertex3f(0.0f, 1.0f, 0.0f);	//Top
-		glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
-		glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
-	glEnd();
+	glPopMatrix();
+		//Translate to 1.0f on the x-axis & -3.0f, on the z-axis
+		glTranslatef(x, y,z);
+		//Begin drawing triangles
+		glBegin(GL_TRIANGLES);
+		glTranslatef(x, y, z);
+			glColor3f(1.0f, 1.0f, 0.0f);	//Color of the vertices
+			glVertex3f(0.0f, 1.0f, 0.0f);	//Top
+			glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
+			glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
+		glEnd();
+	glPushMatrix();
 }	
 
 void update()
 {
-
+	//Alterates position of triangle on x/y axises
+	move();
 }
 
 int main(int argc, char * arg[])
@@ -72,11 +101,83 @@ int main(int argc, char * arg[])
 		while (SDL_PollEvent(&event))
 		{
 			//Get Event type
-			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
+			switch (event.type)
+			{
+				if (event.type!=SDL_KEYDOWN)
+				up, down, left, right = false;
+
+			case SDL_QUIT:
 			{
 				//set our boolean which controls the loop to false
 				run = false;
+				break;
 			}
+
+			case SDL_WINDOWEVENT_CLOSE:
+			{
+				//set our boolean which controls the loop to false
+				run = false;
+				break;
+			}
+
+			case SDL_KEYDOWN:
+			{
+				switch (event.key.keysym.sym)
+				{
+					case SDLK_a:
+					left = true;
+					std::cout << "keyDown" << std::endl;
+					break;
+
+					case SDLK_d:
+					{
+						right = true;
+						break;
+					}
+
+					case SDLK_w:
+					{
+						up = true;
+						break;
+					}
+					case SDLK_s:
+					{
+						down = true;
+						break;
+					}
+				}
+			}
+
+			case SDL_KEYUP:
+			{
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_a:
+					left = false;
+					std::cout << "keyUp" << std::endl;
+					break;
+
+				case SDLK_d:
+				{
+					right = false;
+					break;
+				}
+
+				case SDLK_w:
+				{
+					up = false;
+					break;
+				}
+				case SDLK_s:
+				{
+					down = false;
+					break;
+				}
+				}
+			}
+				break;
+			}
+
 		}
 
 		//update
