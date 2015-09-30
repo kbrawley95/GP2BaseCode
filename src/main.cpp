@@ -4,6 +4,27 @@
 bool up, down, left, right = false;
 GLfloat x, y, z=0;
 GLfloat speed =.001f;
+
+//Verts Array		Top					BottomLeft			BottomRight
+float verts[] = { 0.0f, 1.0f, 0.0f, -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f };
+GLuint VBO;
+
+void initScene()
+{	
+	//create buffer
+	glGenBuffers(1, &VBO);
+	//Make the new VBO active
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//Copy vertex data to VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+
+}
+
+void cleanUp()
+{
+	glDeleteBuffers(1, &VBO);
+}
+
 void move()
 {
 	if (left)
@@ -37,38 +58,57 @@ void render()
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glPushMatrix();
+	//Make the new VBO active. Repeat here as a sanity check (may have changed since the initialisation
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	//Establish it's 3 coordinates per vertex with zero stride (space between elements in array and contain floating point numbers
+	glVertexPointer(2, GL_FLOAT, 0, NULL);
+
+	//Establish array contains vertices (not normals, colours, texture coords etc)
+	glEnableClientState(GL_VERTEX_ARRAY);
+
 	//Switch to ModelView
 	glMatrixMode(GL_MODELVIEW);
+		//REset using the Identity MAtrix
+	glLoadIdentity();
+	//translate
+	glTranslatef(0.0f, 0.0f, -6.0f);
+	//ACtually draw the triangle, giving the number of vertices provided
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
+	glTranslatef(1.0f, 0.0f, -6.0f);
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
+	//glPushMatrix();
+	////Switch to ModelView
+	//glMatrixMode(GL_MODELVIEW);
 
-	//||===================================================||
-	//||======================TRIANGLE1====================||
-	//Reset using the Identity Matrix
-	glLoadIdentity();
-	//Translate to -5.0f on z-axis
-	glTranslatef(x, y, -5.0f);
-	//Begin drawing triangles
-	glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 0.0f, 1.0f);	//Color of the vertices
-		glVertex3f(-1.0f, 0.0f, 0.0f);	//Top
-		glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
-		glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
-	glEnd();
-	
-	//||===================================================||
-	//||======================TRIANGLE2====================||
-	//Reset using the Identity Matrix
-	glLoadIdentity();
-	//Translate to 1.0f on the x-axis & -3.0f, on the z-axis
-	glTranslatef(0.0f, 0.0f, -5.0f);
-	//Begin drawing triangles
-	glBegin(GL_TRIANGLES);
-			glColor3f(1.0f, 1.0f, 0.0f);	//Color of the vertices
-			glVertex3f(0.0f, 1.0f, 0.0f);	//Top
-			glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
-			glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
-	glEnd();
-	glPopMatrix();
+	////||===================================================||
+	////||======================TRIANGLE1====================||
+	////Reset using the Identity Matrix
+	//glLoadIdentity();
+	////Translate to -5.0f on z-axis
+	//glTranslatef(x, y, -5.0f);
+	////Begin drawing triangles
+	//glBegin(GL_TRIANGLES);
+	//	glColor3f(1.0f, 0.0f, 1.0f);	//Color of the vertices
+	//	glVertex3f(-1.0f, 0.0f, 0.0f);	//Top
+	//	glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
+	//	glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
+	//glEnd();
+	//
+	////||===================================================||
+	////||======================TRIANGLE2====================||
+	////Reset using the Identity Matrix
+	//glLoadIdentity();
+	////Translate to 1.0f on the x-axis & -3.0f, on the z-axis
+	//glTranslatef(0.0f, 0.0f, -5.0f);
+	////Begin drawing triangles
+	//glBegin(GL_TRIANGLES);
+	//		glColor3f(1.0f, 1.0f, 0.0f);	//Color of the vertices
+	//		glVertex3f(0.0f, 1.0f, 0.0f);	//Top
+	//		glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
+	//		glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
+	//glEnd();
+	//glPopMatrix();
 
 }	
 
@@ -99,6 +139,8 @@ int main(int argc, char * arg[])
 	//Initialisation
 	//Call our InitOpenGL Function
 	initOpenGL();
+	//Call our InitScene Funtion
+	initScene();
 	//Set Our ViewPort
 	setViewPort(640, 480);
 
@@ -189,6 +231,7 @@ int main(int argc, char * arg[])
 	}
 
 	//Clean up, reverse order!!!
+	cleanUp();
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

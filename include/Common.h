@@ -2,8 +2,10 @@
 #define _COMMON_H
 
 #include <iostream>
+#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+
 
 #include "Graphics.h"
 
