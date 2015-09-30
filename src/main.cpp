@@ -65,11 +65,17 @@ void render()
 	//Make the new VBO active. Repeat here as a sanity check (may have changed since the initialisation
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	//Establish it's 3 coordinates per vertex with zero stride (space between elements in array and contain floating point numbers
+	//the 3 pararmeter is now filled out, the pipeline needs to know the size of each vertex
 	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
 
-	//Establish array contains vertices (not normals, colours, texture coords etc)
+	//The last parameter basically says that the colours start 3 floats into each element of the array
+	glColorPointer(4, GL_FLOAT, sizeof(Vertex), (void**)(3 * sizeof(float)));
+
+	//Establish arrays that contains vertices & colours
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / sizeof(Vertex));
 
 	//Switch to ModelView
 	glMatrixMode(GL_MODELVIEW);
