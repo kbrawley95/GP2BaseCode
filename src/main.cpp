@@ -12,7 +12,7 @@ Vertex verts[] = {
 		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
 		{-0.5f,-0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
 		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-		{0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
+		{0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},		//Top Right
 		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
 		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
 
@@ -41,21 +41,21 @@ Vertex verts[] = {
 		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
 
 	//Top Face
-		{},	//Top Left
-		{},	//Bottom Left
-		{},	//Bottom Right
-		{},	//Top Right
-		{},	//Top Left
-		{},	//Bottom Right
+		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f },	//Top Left
+		{0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},			//Bottom Left
+		{0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
+		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
 
 
 	//Bottom Face
-		{},	//Top Left
-		{},	//Bottom Left
-		{},	//Bottom Right
-		{},	//Top Right
-		{},	//Top Left
-		{},	//Bottom Right
+		{-0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
+		{0.f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+		{-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
+		{ -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
 
 
 };
@@ -165,14 +165,15 @@ void render()
 
 
 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / sizeof(Vertex));
+	
+	//glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / sizeof(Vertex));	Render using VBO
 
 	//Switch to ModelView
 	glMatrixMode(GL_MODELVIEW);
 		//REset using the Identity MAtrix
 	glLoadIdentity();
 	//translate
-	gluLookAt(0.0,0.0,6.0, 0.0, 0.0, -1.0f, 0.0, 1.0, 0.0);
+	gluLookAt(-0.5f, -0.5f, 0.5f, 0.0, 0.0, -1.0f, 0.0, 1.0, 0.0);
 	glTranslatef(0.0f, 0.0f, -6.0f);
 	//ACtually draw the triangle, giving the number of vertices provided
 	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
