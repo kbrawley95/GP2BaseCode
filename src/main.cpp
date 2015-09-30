@@ -5,8 +5,12 @@ bool up, down, left, right = false;
 GLfloat x, y, z=0;
 GLfloat speed =.001f;
 
-//Verts Array		Top					BottomLeft			BottomRight
-float verts[] = { 0.0f, 1.0f, 0.0f, -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f };
+//Vertex array
+Vertex verts[] = {
+{ 0.0f,1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f}, 
+{ -1.0f,-1.0f, 0.0f, 0.0f, 1.0f,1.0f,1.0f },
+{ 1.0f,-1.0f, 0.0f, 0.0f,0.0f,1.0f,1.0f}
+};
 GLuint VBO;
 
 void initScene()
@@ -62,7 +66,7 @@ void render()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	//Establish it's 3 coordinates per vertex with zero stride (space between elements in array and contain floating point numbers
-	glVertexPointer(2, GL_FLOAT, 0, NULL);
+	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
 
 	//Establish array contains vertices (not normals, colours, texture coords etc)
 	glEnableClientState(GL_VERTEX_ARRAY);

@@ -8,6 +8,7 @@
 
 
 #include "Graphics.h"
+#include "Vertex.h"
 
 #ifdef _APPLE_
 #include<OpenGL/glu.h>
