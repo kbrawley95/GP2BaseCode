@@ -75,6 +75,10 @@ void render()
 	glTranslatef(0.0f, 0.0f, -6.0f);
 	//ACtually draw the triangle, giving the number of vertices provided
 	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
+
+	//Additional triangles rendered relative to the initial triangles position	
+	glTranslatef(1.0f, 0.0f, -6.0f);
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
 	glTranslatef(1.0f, 0.0f, -6.0f);
 	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
 	//glPushMatrix();
