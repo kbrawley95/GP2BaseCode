@@ -7,14 +7,92 @@ GLfloat speed =.001f;
 
 //Vertex array
 Vertex verts[] = {
-{ 0.0f,1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f}, 
-{ -1.0f,-1.0f, 0.0f, 0.0f, 1.0f,1.0f,1.0f },
-{ 1.0f,-1.0f, 0.0f, 0.0f,0.0f,1.0f,1.0f}
+
+	//Front Face
+		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{-0.5f,-0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
+		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+		{0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
+		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+
+	//Back Face
+		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
+		{0.5f,-0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Bottom Right
+		{0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
+		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+
+	//Left Face
+		{-0.5f, 0.5f, -0.5f, 1.0, 0.0f, 1.0f, 1.0f},	//Top Left
+		{-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
+		{-0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+		{-0.5f,	0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
+		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{-0.5f, -0.5f,-0.5f, 0.0f, 1.0f, 1.0f, 1.0f },	//Bottom Right
+
+	//Right Face
+		{0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
+		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+		{0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
+		{0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+
+	//Top Face
+		{},	//Top Left
+		{},	//Bottom Left
+		{},	//Bottom Right
+		{},	//Top Right
+		{},	//Top Left
+		{},	//Bottom Right
+
+
+	//Bottom Face
+		{},	//Top Left
+		{},	//Bottom Left
+		{},	//Bottom Right
+		{},	//Top Right
+		{},	//Top Left
+		{},	//Bottom Right
+
+
+};
+
+GLuint indices[] = {
+
+	//front
+	0,1,2,
+	0,3,2,
+
+	//left
+	4,5,1,
+	4,1,0,
+
+	//right
+	3,7,2,
+	7,6,2,
+
+	//bottom
+	1,5,2,
+	6,2,5,
+
+	//top
+	4,0,7,
+	0,7,3,
+
+	//back
+	4,5,6,
+	4,7,6
+
 };
 GLuint VBO;
+GLuint EBO;
 
 void initScene()
 {	
+	//||====VERTEX BUFFER OBJECT====||
 	//create buffer
 	glGenBuffers(1, &VBO);
 	//Make the new VBO active
@@ -22,11 +100,20 @@ void initScene()
 	//Copy vertex data to VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 
+
+	//||====ELEMENT BUFFER OBJECT====||
+	//create buffer
+	glGenBuffers(1, &EBO);
+	//Make the EBO active
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//Copy Index data to the EBO
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
 void cleanUp()
 {
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 }
 
 void move()
@@ -64,6 +151,7 @@ void render()
 
 	//Make the new VBO active. Repeat here as a sanity check (may have changed since the initialisation
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 	//the 3 pararmeter is now filled out, the pipeline needs to know the size of each vertex
 	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
@@ -75,22 +163,25 @@ void render()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / sizeof(Vertex));
+
+	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / sizeof(Vertex));
 
 	//Switch to ModelView
 	glMatrixMode(GL_MODELVIEW);
 		//REset using the Identity MAtrix
 	glLoadIdentity();
 	//translate
+	gluLookAt(0.0,0.0,6.0, 0.0, 0.0, -1.0f, 0.0, 1.0, 0.0);
 	glTranslatef(0.0f, 0.0f, -6.0f);
 	//ACtually draw the triangle, giving the number of vertices provided
 	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
 
-	//Additional triangles rendered relative to the initial triangles position	
-	glTranslatef(1.0f, 0.0f, -6.0f);
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
-	glTranslatef(1.0f, 0.0f, -6.0f);
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
+	////Additional triangles rendered relative to the initial triangles position	
+	//glTranslatef(1.0f, 0.0f, -6.0f);
+	//glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
+	//glTranslatef(1.0f, 0.0f, -6.0f);
+	//glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
 	//glPushMatrix();
 	////Switch to ModelView
 	//glMatrixMode(GL_MODELVIEW);
