@@ -13,50 +13,13 @@ Vertex verts[] = {
 		{-0.5f,-0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
 		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
 		{0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},		//Top Right
-		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
+	
 
 	//Back Face
 		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
 		{-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
 		{0.5f,-0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Bottom Right
 		{0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
-		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-
-	//Left Face
-		{-0.5f, 0.5f, -0.5f, 1.0, 0.0f, 1.0f, 1.0f},	//Top Left
-		{-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
-		{-0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-		{-0.5f,	0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
-		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{-0.5f, -0.5f,-0.5f, 0.0f, 1.0f, 1.0f, 1.0f },	//Bottom Right
-
-	//Right Face
-		{0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
-		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-		{0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
-		{0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-
-	//Top Face
-		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f },	//Top Left
-		{0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},			//Bottom Left
-		{0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
-		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-
-
-	//Bottom Face
-		{-0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
-		{0.f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-		{-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
-		{ -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-
 
 };
 
@@ -133,12 +96,12 @@ void move()
 	if (up)
 	{
 		y += speed;
-		std::cout << speed << std::endl;
+		std::cout << "Moving Up. Position: " <<y<< std::endl;
 	}
 	if (down)
 	{
 		y -= speed;
-		std::cout << speed << std::endl;
+		std::cout << "Moving Down. Position: "<< y << std::endl;
 	}
 }
 
@@ -149,73 +112,8 @@ void render()
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//Make the new VBO active. Repeat here as a sanity check (may have changed since the initialisation
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-	//the 3 pararmeter is now filled out, the pipeline needs to know the size of each vertex
-	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
-
-	//The last parameter basically says that the colours start 3 floats into each element of the array
-	glColorPointer(4, GL_FLOAT, sizeof(Vertex), (void**)(3 * sizeof(float)));
-
-	//Establish arrays that contains vertices & colours
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-
-
 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	
-	//glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / sizeof(Vertex));	Render using VBO
-
-	//Switch to ModelView
-	glMatrixMode(GL_MODELVIEW);
-		//REset using the Identity MAtrix
-	glLoadIdentity();
-	//translate
-	gluLookAt(-0.5f, -0.5f, 0.5f, 0.0, 0.0, -1.0f, 0.0, 1.0, 0.0);
-	glTranslatef(0.0f, 0.0f, -6.0f);
-	//ACtually draw the triangle, giving the number of vertices provided
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
-
-	////Additional triangles rendered relative to the initial triangles position	
-	//glTranslatef(1.0f, 0.0f, -6.0f);
-	//glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
-	//glTranslatef(1.0f, 0.0f, -6.0f);
-	//glDrawArrays(GL_TRIANGLES, 0, sizeof(verts) / (3 * sizeof(float)));
-	//glPushMatrix();
-	////Switch to ModelView
-	//glMatrixMode(GL_MODELVIEW);
-
-	////||===================================================||
-	////||======================TRIANGLE1====================||
-	////Reset using the Identity Matrix
-	//glLoadIdentity();
-	////Translate to -5.0f on z-axis
-	//glTranslatef(x, y, -5.0f);
-	////Begin drawing triangles
-	//glBegin(GL_TRIANGLES);
-	//	glColor3f(1.0f, 0.0f, 1.0f);	//Color of the vertices
-	//	glVertex3f(-1.0f, 0.0f, 0.0f);	//Top
-	//	glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
-	//	glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
-	//glEnd();
-	//
-	////||===================================================||
-	////||======================TRIANGLE2====================||
-	////Reset using the Identity Matrix
-	//glLoadIdentity();
-	////Translate to 1.0f on the x-axis & -3.0f, on the z-axis
-	//glTranslatef(0.0f, 0.0f, -5.0f);
-	////Begin drawing triangles
-	//glBegin(GL_TRIANGLES);
-	//		glColor3f(1.0f, 1.0f, 0.0f);	//Color of the vertices
-	//		glVertex3f(0.0f, 1.0f, 0.0f);	//Top
-	//		glVertex3f(-1.0f, -1.0f, 0.0f);	//Bottom Left
-	//		glVertex3f(1.0f, -1.0f, 0.0f);	//Bottom Right
-	//glEnd();
-	//glPopMatrix();
-
 }	
 
 void update()
@@ -235,6 +133,11 @@ int main(int argc, char * arg[])
 
 		return -1;
 	}
+
+	//Ask for version 4.2 of OpenGL
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	//Create a window
 	SDL_Window * window = SDL_CreateWindow("SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL);	//Window title, x position (centred, y position centred, width (pixels), height (pixels), flags
