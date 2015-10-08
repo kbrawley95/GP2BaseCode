@@ -11,8 +11,12 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+const std::string ASSET_PATH = "assets";
+const std::string SHADER_PATH = "/shaders";
+
 #include "Graphics.h"
 #include "Vertex.h"
+#include "Shader.h"
 
 
 #endif

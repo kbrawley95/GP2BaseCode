@@ -71,6 +71,16 @@ void initScene()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	//Copy Index data to the EBO
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	GLuint vertexShaderProgram = 0;
+	std::string vsPath = ASSET_PATH + SHADER_PATH + "/simpleVS.glsl";
+	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
+	checkForCompileErrors(vertexShaderProgram);
+
+	GLuint fragmentShaderProgram = 0;
+	std::string fsPath = ASSET_PATH + SHADER_PATH + "/simpleFS.glsl";
+	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
+	checkForCompileErrors(fragmentShaderProgram);
 }
 
 void cleanUp()
