@@ -8,6 +8,14 @@ GLfloat speed =.001f;
 //Shader Program
 GLuint shaderProgram = 0;
 
+//Matrices
+mat4 viewMatrix;
+mat4 projMatrix;
+mat4 worldMatrix;
+mat4 MVPMatrix;
+
+
+
 //Vertex array
 Vertex verts[] = {
 
@@ -53,11 +61,21 @@ GLuint indices[] = {
 	4,7,6
 
 };
+//Vertex Buffer Object
 GLuint VBO;
+//Element Buffer Object 
 GLuint EBO;
+//Vertex Array Object
+GLuint VAO;
 
 void initScene()
 {	
+
+	//||====VERTEX ARRAY OBJECT====||
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+
 	//||====VERTEX BUFFER OBJECT====||
 	//create buffer
 	glGenBuffers(1, &VBO);
@@ -74,6 +92,10 @@ void initScene()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	//Copy Index data to the EBO
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	//Vertex array pointers setup
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
 
 	GLuint vertexShaderProgram = 0;
 	std::string vsPath = ASSET_PATH + SHADER_PATH + "/simpleVS.glsl";
@@ -103,6 +125,7 @@ void cleanUp()
 {
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
+	glDeleteVertexArrays(1, &VAO);
 	glDeleteProgram(shaderProgram);
 }
 
@@ -139,16 +162,27 @@ void render()
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glBindVertexArray(VAO);
+
 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 
-	glUseProgram(shaderProgram);
+	glUseProgram(shaderProgram);	
 	
 }	
 
 void update()
 {
+	projMatrix = perspective(45.0f, 640.0f / 480.0f, 0.1f, 100.0f);
+
+	viewMatrix = lookAt(vec3(0.0f, 0.0f, 10.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+
+	worldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
+
+	MVPMatrix = projMatrix*viewMatrix*worldMatrix;
+
 	//Alterates position of triangle on x/y axises
 	move();
+
 }
 
 int main(int argc, char * arg[])
