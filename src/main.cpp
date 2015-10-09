@@ -5,6 +5,9 @@ bool up, down, left, right = false;
 GLfloat x, y, z=0;
 GLfloat speed =.001f;
 
+//Shader Program
+GLuint shaderProgram = 0;
+
 //Vertex array
 Vertex verts[] = {
 
@@ -81,12 +84,26 @@ void initScene()
 	std::string fsPath = ASSET_PATH + SHADER_PATH + "/simpleFS.glsl";
 	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
 	checkForCompileErrors(fragmentShaderProgram);
+
+	shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShaderProgram);
+	glAttachShader(shaderProgram, fragmentShaderProgram);
+	glLinkProgram(shaderProgram);
+	checkForLinkErrors(shaderProgram);
+
+	//now we can delete the VS & FS Programs
+	glDeleteShader(vertexShaderProgram);
+	glDeleteShader(fragmentShaderProgram);
+
+	//Binding location 0 to vertexPosition in shader program
+	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
 }
 
 void cleanUp()
 {
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
+	glDeleteProgram(shaderProgram);
 }
 
 void move()
@@ -123,6 +140,8 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+
+	glUseProgram(shaderProgram);
 	
 }	
 
