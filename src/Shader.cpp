@@ -9,7 +9,7 @@ GLuint loadShaderFromMemory(const char * pMem, SHADER_TYPE shaderType)
 	return program;
 }
 
-GLuint loadFromShaderFromFile(const std::string& filename, SHADER_TYPE shaderType)
+GLuint loadShaderFromFile(const std::string& filename, SHADER_TYPE shaderType)
 {
 	std::string fileContents;
 	std::ifstream file;

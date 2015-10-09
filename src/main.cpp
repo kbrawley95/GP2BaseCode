@@ -20,17 +20,17 @@ mat4 MVPMatrix;
 Vertex verts[] = {
 
 	//Front Face
-		{-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{-0.5f,-0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
-		{0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f},	//Bottom Right
-		{0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f},		//Top Right
+	vec3{ -0.5f, 0.5f, 0.5f }, vec4{1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
+	vec3{ -0.5f, -0.5f, 0.5f }, vec4{1.0f, 1.0f, 0.0f, 1.0f },	//Bottom Left
+	vec3{ 0.5f, -0.5f, 0.5f }, vec4{0.0f, 1.0f, 1.0f, 1.0f },	//Bottom Right
+	vec3{ 0.5f, 0.5f, 0.5f }, vec4{1.0f, 0.0f, 1.0f, 1.0f },		//Top Right
 	
 
 	//Back Face
-		{-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-		{-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f},	//Bottom Left
-		{0.5f,-0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Bottom Right
-		{0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f},	//Top Right
+	vec3{ -0.5f, 0.5f, -0.5f },vec4{ 1.0f, 0.0f, 1.0f, 1.0f },	//Top Left
+	vec3{ -0.5f, -0.5f, -0.5f } ,vec4{1.0f, 1.0f, 0.0f, 1.0f },	//Bottom Left
+	vec3{ 0.5f, -0.5f, -0.5f }, vec4{1.0f, 0.0f, 1.0f, 1.0f },	//Bottom Right
+	vec3{ 0.5f, 0.5f, -0.5f } , vec4{1.0f, 0.0f, 1.0f, 1.0f }	//Top Right
 
 };
 
@@ -167,6 +167,9 @@ void render()
 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 
 	glUseProgram(shaderProgram);	
+
+	GLuint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
+	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, value_ptr(MVPMatrix));
 	
 }	
 
