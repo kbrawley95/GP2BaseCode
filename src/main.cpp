@@ -97,13 +97,16 @@ void initScene()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
 
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**) sizeof(vec3));
+
 	GLuint vertexShaderProgram = 0;
-	std::string vsPath = ASSET_PATH + SHADER_PATH + "/simpleVS.glsl";
+	std::string vsPath = ASSET_PATH + SHADER_PATH + "/simpleColorVS.glsl";
 	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
 	checkForCompileErrors(vertexShaderProgram);
 
 	GLuint fragmentShaderProgram = 0;
-	std::string fsPath = ASSET_PATH + SHADER_PATH + "/simpleFS.glsl";
+	std::string fsPath = ASSET_PATH + SHADER_PATH + "/simpleColorFS.glsl";
 	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
 	checkForCompileErrors(fragmentShaderProgram);
 
@@ -119,14 +122,16 @@ void initScene()
 
 	//Binding location 0 to vertexPosition in shader program
 	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
+	glBindAttribLocation(shaderProgram, 1, "vertexColor");
 }
 
 void cleanUp()
 {
+	glDeleteProgram(shaderProgram);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &VAO);
-	glDeleteProgram(shaderProgram);
+	
 }
 
 void move()
@@ -162,15 +167,14 @@ void render()
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBindVertexArray(VAO);
-
-	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-
-	glUseProgram(shaderProgram);	
+	//glBindVertexArray(VAO);
+	glUseProgram(shaderProgram);
 
 	GLuint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, value_ptr(MVPMatrix));
-	
+
+	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+
 }	
 
 void update()

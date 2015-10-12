@@ -12,11 +12,10 @@
 #include <SDL_opengl.h>
 
 //Maths Headers
-#include <glm.hpp>
+#include <glm\glm.hpp>
 using namespace glm;
-
-#include<gtc\matrix_transform.hpp>
-#include<gtc\type_ptr.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
 
 const std::string ASSET_PATH = "assets";
 const std::string SHADER_PATH = "/shaders";
