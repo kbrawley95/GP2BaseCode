@@ -97,7 +97,7 @@ void initScene()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
 
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**) sizeof(vec3));
 
 	GLuint vertexShaderProgram = 0;
@@ -167,7 +167,7 @@ void render()
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//glBindVertexArray(VAO);
+	glBindVertexArray(VAO);
 	glUseProgram(shaderProgram);
 
 	GLuint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");

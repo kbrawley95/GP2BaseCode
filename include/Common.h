@@ -8,6 +8,8 @@
 
 
 #include <GL/glew.h>
+
+#define SDL_main main 
 #include <SDL.h>
 #include <SDL_opengl.h>
 
