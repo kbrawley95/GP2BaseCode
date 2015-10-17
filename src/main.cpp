@@ -126,10 +126,11 @@ void initScene()
 	glLinkProgram(shaderProgram);
 	checkForLinkErrors(shaderProgram);
 
-	//Binding location 0 to vertexPosition in shader program
+
 	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
 	glBindAttribLocation(shaderProgram, 1, "vertexColor");
-
+	glLinkProgram(shaderProgram);
+	checkForLinkErrors(shaderProgram);
 	//now we can delete the VS & FS Programs
 	glDeleteShader(vertexShaderProgram);
 	glDeleteShader(fragmentShaderProgram);
