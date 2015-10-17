@@ -23,30 +23,30 @@ Vertex verts[] = {
 
 	//Front
 		{ vec3(-0.5f, 0.5f, 0.5f),
-		vec4(1.0f, 0.0f, 1.0f, 1.0f) },// Top Left
+		vec4(1.0f, 0.0f, 1.0f, 1.0f), vec2(0.0f, 0.0f)},// Top Left
 
 		{ vec3(-0.5f, -0.5f, 0.5f),
-		vec4(1.0f, 1.0f, 0.0f, 1.0f) },// Bottom Left
+		vec4(1.0f, 1.0f, 0.0f, 1.0f), vec2(0.0f, 1.0f) },// Bottom Left
 
 		{ vec3(0.5f, -0.5f, 0.5f),
-		vec4(0.0f, 1.0f, 1.0f, 1.0f) }, //Bottom Right
+		vec4(0.0f, 1.0f, 1.0f, 1.0f), vec2(1.0f,1.0f) }, //Bottom Right
 
 		{ vec3(0.5f, 0.5f, 0.5f),
-		vec4(1.0f, 0.0f, 1.0f, 1.0f) },// Top Right
+		vec4(1.0f, 0.0f, 1.0f, 1.0f),vec2(1.0f, 0.0f) },// Top Right
 
 
 		//back
 		{ vec3(-0.5f, 0.5f, -0.5f),
-		vec4(1.0f, 0.0f, 1.0f, 1.0f) },// Top Left
+		vec4(1.0f, 0.0f, 1.0f, 1.0f), vec2(0.0f, 0.0f) },// Top Left
 
 		{ vec3(-0.5f, -0.5f, -0.5f),
-		vec4(1.0f, 1.0f, 0.0f, 1.0f) },// Bottom Left
+		vec4(1.0f, 1.0f, 0.0f, 1.0f), vec2(0.0f, 1.0f)},// Bottom Left
 
 		{ vec3(0.5f, -0.5f, -0.5f),
-		vec4(0.0f, 1.0f, 1.0f, 1.0f) }, //Bottom Right
+		vec4(0.0f, 1.0f, 1.0f, 1.0f), vec2(1.0f, 1.0f)}, //Bottom Right
 
 		{ vec3(0.5f, 0.5f, -0.5f),
-		vec4(1.0f, 0.0f, 1.0f, 1.0f) },// Top Right
+		vec4(1.0f, 0.0f, 1.0f, 1.0f), vec2(1.0f, 0.0f)},// Top Right
 
 };
 
@@ -110,6 +110,9 @@ void initScene()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3)));
 
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3)) +(sizeof(vec4)));
+
 	GLuint vertexShaderProgram = 0;
 	string vsPath = ASSET_PATH + SHADER_PATH + "/simpleColorVS.glsl";
 	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
@@ -121,21 +124,25 @@ void initScene()
 	checkForCompileErrors(fragmentShaderProgram);
 
 	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShaderProgram);\
+
+	glAttachShader(shaderProgram, vertexShaderProgram);
 	glAttachShader(shaderProgram, fragmentShaderProgram);
+
 	glLinkProgram(shaderProgram);
 	checkForLinkErrors(shaderProgram);
 
 
 	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
 	glBindAttribLocation(shaderProgram, 1, "vertexColor");
+	glBindAttribLocation(shaderProgram, 2, "textCoords");
+
 	glLinkProgram(shaderProgram);
+
 	checkForLinkErrors(shaderProgram);
+
 	//now we can delete the VS & FS Programs
 	glDeleteShader(vertexShaderProgram);
 	glDeleteShader(fragmentShaderProgram);
-
-	
 }
 
 void cleanUp()
@@ -146,9 +153,6 @@ void cleanUp()
 	glDeleteVertexArrays(1, &VAO);
 	
 }
-
-
-
 
 void render()
 {
@@ -176,8 +180,6 @@ void update()
 	worldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
 
 	MVPMatrix = projMatrix*viewMatrix*worldMatrix;
-
-
 }
 
 
