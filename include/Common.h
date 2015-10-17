@@ -11,6 +11,7 @@
 using namespace std;
 
 #include <SDL.h>
+#include <SDL_Image.h>
 #include <SDL_opengl.h>
 #define SDL_main main 
 

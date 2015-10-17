@@ -193,6 +193,14 @@ int main(int argc, char * arg[])
 		return -1;
 	}
 
+	//init SDL_Image
+	int imageInitFlags = IMG_INIT_JPG|| IMG_INIT_PNG;
+	int returnInitFlags = IMG_Init(imageInitFlags);
+	if (((returnInitFlags)&(imageInitFlags)) != imageInitFlags)
+	{
+		cout << "ERROR SDL_Image Init" << IMG_GetError() << endl;
+	}
+
 	//Ask for version 4.2 of OpenGL
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
@@ -302,6 +310,7 @@ int main(int argc, char * arg[])
 	cleanUp();
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);
+	IMG_Quit();
 	SDL_Quit();
 
     return 0;
