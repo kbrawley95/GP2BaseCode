@@ -2,6 +2,7 @@
 #include "Graphics.h"
 #include "Vertex.h"
 #include "Shader.h"
+#include"Texture.h"
 
 //Shader Program
 GLuint shaderProgram = 0;
@@ -12,6 +13,9 @@ GLuint VBO;
 GLuint EBO;
 //Vertex Array Object
 GLuint VAO;
+
+//Texture Map
+GLuint textureMap;
 
 //Matrices
 mat4 viewMatrix;
@@ -79,6 +83,15 @@ GLuint indices[] = {
 
 void initScene()
 {	
+	//Load Texture & Bind
+	string texturePath = ASSET_PATH + TEXTURE_PATH + "/texture.png";
+	textureMap = loadTextureFromFile(texturePath);
+
+	glBindTexture(GL_TEXTURE_2D, textureMap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	//||====VERTEX ARRAY OBJECT====||
 	glGenVertexArrays(1, &VAO);
@@ -134,7 +147,7 @@ void initScene()
 
 	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
 	glBindAttribLocation(shaderProgram, 1, "vertexColor");
-	glBindAttribLocation(shaderProgram, 2, "textCoords");
+	glBindAttribLocation(shaderProgram, 2, "vertexTexCoords");
 
 	glLinkProgram(shaderProgram);
 
@@ -147,6 +160,7 @@ void initScene()
 
 void cleanUp()
 {
+	glDeleteTextures(1, &textureMap);
 	glDeleteProgram(shaderProgram);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
@@ -162,7 +176,14 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureMap);
+
 	GLuint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
+	GLuint texture0Location = glGetUniformLocation(shaderProgram, "texture0");
+	glUniform1f(texture0Location, 0);
+
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, value_ptr(MVPMatrix));
 	
 	glBindVertexArray(VAO);
@@ -181,7 +202,6 @@ void update()
 
 	MVPMatrix = projMatrix*viewMatrix*worldMatrix;
 }
-
 
 int main(int argc, char * arg[])
 {
