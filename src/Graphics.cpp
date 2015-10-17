@@ -27,7 +27,7 @@ void initOpenGL()
 	if (GLEW_OK != err)
 	{
 		/*Problem: glewInit failed, something is seriously wrong*/
-		std::cout << "Error: " << glewGetErrorString(err) << std::endl;
+		cout << "Error: " << glewGetErrorString(err) << endl;
 	}
 }
 

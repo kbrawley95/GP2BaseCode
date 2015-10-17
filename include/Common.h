@@ -6,25 +6,23 @@
 #include <sstream>
 #include <fstream>
 
-
 #include <GL/glew.h>
 
-#define SDL_main main 
+using namespace std;
+
 #include <SDL.h>
 #include <SDL_opengl.h>
+#define SDL_main main 
 
 //Maths Headers
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 using namespace glm;
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\gtc\type_ptr.hpp>
 
-const std::string ASSET_PATH = "assets";
-const std::string SHADER_PATH = "/shaders";
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-#include "Graphics.h"
-#include "Vertex.h"
-#include "Shader.h"
+const string ASSET_PATH = "assets";
+const string SHADER_PATH = "/shaders";
 
 
 #endif

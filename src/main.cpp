@@ -1,12 +1,17 @@
 #include "Common.h"
-
-//Movement Variables
-bool up, down, left, right = false;
-GLfloat x, y, z=0;
-GLfloat speed =.001f;
+#include "Graphics.h"
+#include "Vertex.h"
+#include "Shader.h"
 
 //Shader Program
 GLuint shaderProgram = 0;
+
+//Vertex Buffer Object
+GLuint VBO;
+//Element Buffer Object 
+GLuint EBO;
+//Vertex Array Object
+GLuint VAO;
 
 //Matrices
 mat4 viewMatrix;
@@ -14,59 +19,63 @@ mat4 projMatrix;
 mat4 worldMatrix;
 mat4 MVPMatrix;
 
-
-
-//Vertex array
 Vertex verts[] = {
 
-	//Front Face
-	vec3{ -0.5f, 0.5f, 0.5f }, vec4{1.0f, 0.0f, 1.0f, 1.0f},	//Top Left
-	vec3{ -0.5f, -0.5f, 0.5f }, vec4{1.0f, 1.0f, 0.0f, 1.0f },	//Bottom Left
-	vec3{ 0.5f, -0.5f, 0.5f }, vec4{0.0f, 1.0f, 1.0f, 1.0f },	//Bottom Right
-	vec3{ 0.5f, 0.5f, 0.5f }, vec4{1.0f, 0.0f, 1.0f, 1.0f },		//Top Right
-	
+	//Front
+		{ vec3(-0.5f, 0.5f, 0.5f),
+		vec4(1.0f, 0.0f, 1.0f, 1.0f) },// Top Left
 
-	//Back Face
-	vec3{ -0.5f, 0.5f, -0.5f },vec4{ 1.0f, 0.0f, 1.0f, 1.0f },	//Top Left
-	vec3{ -0.5f, -0.5f, -0.5f } ,vec4{1.0f, 1.0f, 0.0f, 1.0f },	//Bottom Left
-	vec3{ 0.5f, -0.5f, -0.5f }, vec4{1.0f, 0.0f, 1.0f, 1.0f },	//Bottom Right
-	vec3{ 0.5f, 0.5f, -0.5f } , vec4{1.0f, 0.0f, 1.0f, 1.0f }	//Top Right
+		{ vec3(-0.5f, -0.5f, 0.5f),
+		vec4(1.0f, 1.0f, 0.0f, 1.0f) },// Bottom Left
+
+		{ vec3(0.5f, -0.5f, 0.5f),
+		vec4(0.0f, 1.0f, 1.0f, 1.0f) }, //Bottom Right
+
+		{ vec3(0.5f, 0.5f, 0.5f),
+		vec4(1.0f, 0.0f, 1.0f, 1.0f) },// Top Right
+
+
+		//back
+		{ vec3(-0.5f, 0.5f, -0.5f),
+		vec4(1.0f, 0.0f, 1.0f, 1.0f) },// Top Left
+
+		{ vec3(-0.5f, -0.5f, -0.5f),
+		vec4(1.0f, 1.0f, 0.0f, 1.0f) },// Bottom Left
+
+		{ vec3(0.5f, -0.5f, -0.5f),
+		vec4(0.0f, 1.0f, 1.0f, 1.0f) }, //Bottom Right
+
+		{ vec3(0.5f, 0.5f, -0.5f),
+		vec4(1.0f, 0.0f, 1.0f, 1.0f) },// Top Right
 
 };
 
 GLuint indices[] = {
-
 	//front
-	0,1,2,
-	0,3,2,
+	0, 1, 2,
+	0, 3, 2,
 
 	//left
-	4,5,1,
-	4,1,0,
+	4, 5, 1,
+	4, 1, 0,
 
 	//right
-	3,7,2,
-	7,6,2,
+	3, 7, 2,
+	7, 6, 2,
 
 	//bottom
-	1,5,2,
-	6,2,5,
+	1, 5, 2,
+	6, 2, 5,
 
 	//top
-	4,0,7,
-	0,7,3,
+	4, 0, 7,
+	0, 7, 3,
 
 	//back
-	4,5,6,
-	4,7,6
-
+	4, 5, 6,
+	4, 7, 6
 };
-//Vertex Buffer Object
-GLuint VBO;
-//Element Buffer Object 
-GLuint EBO;
-//Vertex Array Object
-GLuint VAO;
+
 
 void initScene()
 {	
@@ -94,35 +103,38 @@ void initScene()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	//Vertex array pointers setup
+	//Tell the shader that 0 is the position element
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
 
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**) sizeof(vec3));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3)));
 
 	GLuint vertexShaderProgram = 0;
-	std::string vsPath = ASSET_PATH + SHADER_PATH + "/simpleColorVS.glsl";
+	string vsPath = ASSET_PATH + SHADER_PATH + "/simpleColorVS.glsl";
 	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
 	checkForCompileErrors(vertexShaderProgram);
 
 	GLuint fragmentShaderProgram = 0;
-	std::string fsPath = ASSET_PATH + SHADER_PATH + "/simpleColorFS.glsl";
+	string fsPath = ASSET_PATH + SHADER_PATH + "/simpleColorFS.glsl";
 	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
 	checkForCompileErrors(fragmentShaderProgram);
 
 	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShaderProgram);
+	glAttachShader(shaderProgram, vertexShaderProgram);\
 	glAttachShader(shaderProgram, fragmentShaderProgram);
 	glLinkProgram(shaderProgram);
 	checkForLinkErrors(shaderProgram);
+
+	//Binding location 0 to vertexPosition in shader program
+	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
+	glBindAttribLocation(shaderProgram, 1, "vertexColor");
 
 	//now we can delete the VS & FS Programs
 	glDeleteShader(vertexShaderProgram);
 	glDeleteShader(fragmentShaderProgram);
 
-	//Binding location 0 to vertexPosition in shader program
-	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
-	glBindAttribLocation(shaderProgram, 1, "vertexColor");
+	
 }
 
 void cleanUp()
@@ -134,31 +146,8 @@ void cleanUp()
 	
 }
 
-void move()
-{
-	if (left)
-	{
-		x -=speed;
-		std::cout <<"Moving Left. Position: " << x << std::endl;
-	}
-	 
-	if (right)
-	{
-		x += speed;
-		std::cout << "Moving Right. Position: " << x << std::endl;
-	}	
-	
-	if (up)
-	{
-		y += speed;
-		std::cout << "Moving Up. Position: " <<y<< std::endl;
-	}
-	if (down)
-	{
-		y -= speed;
-		std::cout << "Moving Down. Position: "<< y << std::endl;
-	}
-}
+
+
 
 void render()
 {
@@ -166,12 +155,12 @@ void render()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glBindVertexArray(VAO);
+	
 	glUseProgram(shaderProgram);
-
 	GLuint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, value_ptr(MVPMatrix));
+	
+	glBindVertexArray(VAO);
 
 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 
@@ -187,10 +176,9 @@ void update()
 
 	MVPMatrix = projMatrix*viewMatrix*worldMatrix;
 
-	//Alterates position of triangle on x/y axises
-	move();
 
 }
+
 
 int main(int argc, char * arg[])
 {
@@ -199,7 +187,7 @@ int main(int argc, char * arg[])
 	//init everything - SD, if it is nonzero we have a problem
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
-		std::cout << "ERROR SDL_Init" << SDL_GetError() << std::endl;
+		cout << "ERROR SDL_Init" << SDL_GetError() << endl;
 
 		return -1;
 	}
@@ -233,47 +221,47 @@ int main(int argc, char * arg[])
 		{
 			if (event.type == SDL_KEYUP)
 			{
-				std::cout << "Key Released" << std::endl;
+				cout << "Key Released" << endl;
 
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_a:
-					left = false;
+				
 					break;
 
 				case SDLK_d:
-					right = false;
+					
 					break;
 
 				case SDLK_w:
-					up= false;
+					
 					break;
 
 				case SDLK_s:
-					down = false;
+				
 					break;
 				}
 			}
 			else if (event.type == SDL_KEYDOWN)
 			{
-				std::cout << "Key Pressed" << std::endl;
+				cout << "Key Pressed" << endl;
 
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_a:
-					left = true;
+					
 					break;
 
 				case SDLK_d:
-					right = true;
+					
 					break;
 
 				case SDLK_w:
-					up = true;
+					
 					break;
 
 				case SDLK_s:
-					down =true;
+				
 					break;
 				}
 			}
