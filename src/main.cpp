@@ -17,6 +17,9 @@ GLuint VAO;
 //Texture Map
 GLuint textureMap;
 
+//Font Texture
+GLuint fontTexture;
+
 //Matrices
 mat4 viewMatrix;
 mat4 projMatrix;
@@ -87,12 +90,21 @@ void initScene()
 	string texturePath = ASSET_PATH + TEXTURE_PATH + "/texture.png";
 	textureMap = loadTextureFromFile(texturePath);
 
+	//Load Font Texture
+	string fontPath = ASSET_PATH + FONT_PATH + "OratorStd.oft";
+	fontTexture = loadTextureFromFont(fontPath, 18, "Hello World");
+
 	glBindTexture(GL_TEXTURE_2D, textureMap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
+	glBindTexture(GL_TEXTURE_2D, fontTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	
 	//||====VERTEX ARRAY OBJECT====||
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -160,6 +172,7 @@ void initScene()
 
 void cleanUp()
 {
+	glDeleteTextures(1, &fontTexture);
 	glDeleteTextures(1, &textureMap);
 	glDeleteProgram(shaderProgram);
 	glDeleteBuffers(1, &VBO);
@@ -177,8 +190,13 @@ void render()
 	
 	glUseProgram(shaderProgram);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glUseProgram(UIShaderprogram);
+
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureMap);
+	glBindTexture(GL_TEXTURE_2D, fontTexture);
 
 	GLuint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
 	GLuint texture0Location = glGetUniformLocation(shaderProgram, "texture0");
@@ -221,6 +239,11 @@ int main(int argc, char * arg[])
 	if (((returnInitFlags)&(imageInitFlags)) != imageInitFlags)
 	{
 		cout << "ERROR SDL_Image Init" << IMG_GetError() << endl;
+	}
+
+	if (TTF_Init() == -1)
+	{
+		cout << "ERROR TTF_Init: " << TTF_GetError();
 	}
 
 	//Ask for version 4.2 of OpenGL
@@ -333,6 +356,7 @@ int main(int argc, char * arg[])
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);
 	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
 
     return 0;
