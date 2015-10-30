@@ -7,7 +7,7 @@
 #include"FileSystem.h"
 #include "FbxLoader.h"
 
-float x, y,z = 0.0f;
+float x = 0.0f; float  y = 0.0f;float z = 20.0f;
 
 Vertex verts[] = {
 	//Front
@@ -68,7 +68,7 @@ GLuint indices[] = {
 //matrices
 mat4 viewMatrix;
 mat4 projMatrix;
-mat4 worldMatrix;
+mat4 ModelMatrix;
 mat4 MVPMatrix;
 mat4 rotationMatrix;
 
@@ -81,10 +81,20 @@ MeshData currentMesh;
 
 GLuint diffuseMap;
 
+//Ambient Shader Values
+vec4 ambientMaterialColour=vec4(0.3f, 0.3f, 0.3f, 1.0f);;
+vec4 ambientLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);;
+
+//Diffuse Shader Values
+vec4 diffuseMaterialColour=vec4(0.6f,0.6f,0.6f,1.0f);
+vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+vec3 LightDirection = vec3(0.0f,0.0f,1.0f);
+
 void initScene()
 {
 
-	string modelPath = ASSET_PATH + MODEL_PATH + "/utah-teapot.fbx";
+	string modelPath = ASSET_PATH + MODEL_PATH + "/armoredrecon.fbx";
 	loadFBXFromFile(modelPath, &currentMesh);
 
 
@@ -120,17 +130,21 @@ void initScene()
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3)));
+	
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) + sizeof(vec4)));
 
-	/*glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) + sizeof(vec4)));*/
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) +sizeof(vec4) +sizeof(vec2)));
+
 
 	GLuint vertexShaderProgram = 0;
-	string vsPath = ASSET_PATH + SHADER_PATH + "/simpleColourVS.glsl";
+	string vsPath = ASSET_PATH + SHADER_PATH + "/diffuseVS.glsl";
 	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
 	checkForCompilerErrors(vertexShaderProgram);
 
 	GLuint fragmentShaderProgram = 0;
-	string fsPath = ASSET_PATH + SHADER_PATH + "/simpleColourFS.glsl";
+	string fsPath = ASSET_PATH + SHADER_PATH + "/diffuseFS.glsl";
 	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
 	checkForCompilerErrors(fragmentShaderProgram);
 
@@ -141,7 +155,8 @@ void initScene()
 	//Link attributes
 	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
 	glBindAttribLocation(shaderProgram, 1, "vertexColour");
-	//glBindAttribLocation(shaderProgram, 2, "vertexTexCoords");
+	glBindAttribLocation(shaderProgram, 2, "vertexTexCoords");
+	glBindAttribLocation(shaderProgram, 3, "vertexNormal");
 
 	glLinkProgram(shaderProgram);
 	checkForLinkErrors(shaderProgram);
@@ -165,9 +180,9 @@ void update()
 
 	viewMatrix = glm::lookAt(vec3(x,y, z), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 
-	worldMatrix = glm::translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
+	ModelMatrix = glm::translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
 
-	MVPMatrix = projMatrix*viewMatrix*worldMatrix;
+	MVPMatrix = projMatrix*viewMatrix*ModelMatrix;
 }
 
 void render()
@@ -181,12 +196,29 @@ void render()
 	glUseProgram(shaderProgram);
 
 	GLint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
+	GLint ModelLocation = glGetUniformLocation(shaderProgram, "Model");
+	GLint AmbientMaterialLocal = glGetUniformLocation(shaderProgram, "ambientMaterialColour");
+	GLint AmbientLightLocal = glGetUniformLocation(shaderProgram, "ambientLightColour");
+
+	GLint DiffuseMaterialLocal = glGetUniformLocation(shaderProgram, "diffuseMaterialColour");
+	GLint DiffuseLightLocal = glGetUniformLocation(shaderProgram, "diffuseLightColour");
+	GLint LightDirectionLocal = glGetUniformLocation(shaderProgram, "lightDirection");
 	/*GLint texture0Location = glGetUniformLocation(shaderProgram, "texture0");*/
 
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVPMatrix));
+	glUniformMatrix4fv(ModelLocation, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+	
+	glUniform4fv(DiffuseMaterialLocal,1,glm::value_ptr(diffuseMaterialColour));
+	glUniform4fv(DiffuseLightLocal,1,glm::value_ptr(diffuseLightColour));
+
+	glUniform4fv(AmbientMaterialLocal, 1, glm::value_ptr(ambientMaterialColour));
+	glUniform4fv(AmbientLightLocal, 1, glm::value_ptr(ambientLightColour));
+
+	glUniform3fv(LightDirectionLocal, 1, glm::value_ptr(LightDirection));
 	/*glUniform1i(texture0Location, 0);*/
 
 	glBindVertexArray(VAO);
