@@ -87,6 +87,7 @@ void initScene()
 	string modelPath = ASSET_PATH + MODEL_PATH + "/utah-teapot.fbx";
 	loadFBXFromFile(modelPath, &currentMesh);
 
+
 	////load texture & bind
 	//string texturePath = ASSET_PATH + TEXTURE_PATH + "/Tank1DF.png";
 	//diffuseMap = loadTextureFromFile(texturePath);
