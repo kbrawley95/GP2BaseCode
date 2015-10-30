@@ -12,8 +12,8 @@
 # if not assumed plain lib
 
 IF(APPLE)
-	SET(FBX_LIBDIR "clang")
-	SET(FBX_LIBEXT "a")
+  SET(FBX_LIBDIR "clang")
+  SET(FBX_LIBEXT "a")
 ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
   SET(FBX_LIBDIR "gcc4")
 ELSEIF(MSVC80)
@@ -30,7 +30,7 @@ ELSEIF(MSVC12 OR MSVC_VERSION>1800)
 ENDIF()
 
 IF(APPLE)
-  	    # do nothing
+        # do nothing
 ELSEIF(CMAKE_CL_64)
   SET(FBX_LIBDIR ${FBX_LIBDIR}/x64)
 ELSEIF(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -44,10 +44,10 @@ SET(FBX_LIBNAME "libfbxsdk")
 SET(FBX_LIBNAME_DEBUG ${FBX_LIBNAME})
 
 SET( FBX_SEARCH_PATHS
-	    $ENV{FBX_DIR}
-	    "$ENV{ProgramW6432}/Autodesk/FBX/FBX SDK/2015.1"
-	    "$ENV{PROGRAMFILES}/Autodesk/FBX/FBX SDK/2015.1"
-	    /Applications/Autodesk/FBXSDK20151
+      $ENV{FBX_DIR}
+      "$ENV{ProgramW6432}/Autodesk/FBX/FBX SDK/2015.1"
+      "$ENV{PROGRAMFILES}/Autodesk/FBX/FBX SDK/2015.1"
+      /Applications/Autodesk/FBXSDK20151
       "$ENV{ProgramW6432}/Autodesk/FBX/FBX SDK/2014.2"
       "$ENV{PROGRAMFILES}/Autodesk/FBX/FBX SDK/2014.2"
       /Applications/Autodesk/FBXSDK20142

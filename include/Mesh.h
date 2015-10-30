@@ -12,12 +12,12 @@ struct MeshData
 	int getNumVerts()
 	{
 		return vertices.size();
-	}
+	};
 
 	int getNumIndices()
 	{
 		return indices.size();
-	}
+	};
 
 	~MeshData()
 	{

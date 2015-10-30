@@ -3,7 +3,11 @@
 #include "Vertices.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Mesh.h"
 #include"FileSystem.h"
+#include "FbxLoader.h"
+
+float x, y,z = 0.0f;
 
 Vertex verts[] = {
 	//Front
@@ -66,40 +70,48 @@ mat4 viewMatrix;
 mat4 projMatrix;
 mat4 worldMatrix;
 mat4 MVPMatrix;
+mat4 rotationMatrix;
 
 GLuint VBO;
 GLuint EBO;
 GLuint VAO;
 GLuint shaderProgram;
 
+MeshData currentMesh;
+
 GLuint diffuseMap;
 
 void initScene()
 {
-	//load texture & bind
-	string texturePath = ASSET_PATH + TEXTURE_PATH + "/texture.png";
-	diffuseMap = loadTextureFromFile(texturePath);
 
-	glBindTexture(GL_TEXTURE_2D, diffuseMap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	string modelPath = ASSET_PATH + MODEL_PATH + "/utah-teapot.fbx";
+	loadFBXFromFile(modelPath, &currentMesh);
+
+	////load texture & bind
+	//string texturePath = ASSET_PATH + TEXTURE_PATH + "/Tank1DF.png";
+	//diffuseMap = loadTextureFromFile(texturePath);
+
+	//glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	//glGenerateMipmap(GL_TEXTURE_2D);
 
 	//Generate Vertex Array
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, currentMesh.getNumVerts()*sizeof(Vertex), &currentMesh.vertices[0], GL_STATIC_DRAW);
 
 	//create buffer
 	glGenBuffers(1, &EBO);
 	//Make the EBO active
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	//Copy Index data to the EBO
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, currentMesh.getNumIndices()*sizeof(int), &currentMesh.indices[0], GL_STATIC_DRAW);
+
 
 	//Tell the shader that 0 is the position element
 	glEnableVertexAttribArray(0);
@@ -108,16 +120,16 @@ void initScene()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3)));
 
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) + sizeof(vec4)));
+	/*glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) + sizeof(vec4)));*/
 
 	GLuint vertexShaderProgram = 0;
-	string vsPath = ASSET_PATH + SHADER_PATH + "/textureVS.glsl";
+	string vsPath = ASSET_PATH + SHADER_PATH + "/simpleColourVS.glsl";
 	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
 	checkForCompilerErrors(vertexShaderProgram);
 
 	GLuint fragmentShaderProgram = 0;
-	string fsPath = ASSET_PATH + SHADER_PATH + "/textureFS.glsl";
+	string fsPath = ASSET_PATH + SHADER_PATH + "/simpleColourFS.glsl";
 	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
 	checkForCompilerErrors(fragmentShaderProgram);
 
@@ -128,7 +140,7 @@ void initScene()
 	//Link attributes
 	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
 	glBindAttribLocation(shaderProgram, 1, "vertexColour");
-	glBindAttribLocation(shaderProgram, 2, "vertexTexCoords");
+	//glBindAttribLocation(shaderProgram, 2, "vertexTexCoords");
 
 	glLinkProgram(shaderProgram);
 	checkForLinkErrors(shaderProgram);
@@ -150,7 +162,7 @@ void update()
 {
 	projMatrix = glm::perspective(45.0f, 640.0f / 480.0f, 0.1f, 100.0f);
 
-	viewMatrix = glm::lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	viewMatrix = glm::lookAt(vec3(x,y, z), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 
 	worldMatrix = glm::translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
 
@@ -168,18 +180,30 @@ void render()
 	glUseProgram(shaderProgram);
 
 	GLint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
-	GLint texture0Location = glGetUniformLocation(shaderProgram, "texture0");
+	/*GLint texture0Location = glGetUniformLocation(shaderProgram, "texture0");*/
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVPMatrix));
-	glUniform1i(texture0Location, 0);
+	/*glUniform1i(texture0Location, 0);*/
 
 	glBindVertexArray(VAO);
 
-	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+
+	glDrawElements(GL_TRIANGLES, currentMesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+
+
 }
+
+//float m_speed = 2.0f;
+//mat4 m_direction;
+//
+//void rotate(float amount, glm::vec3& axis)
+//{
+//	m_direction = glm::rotate(m_direction, amount * m_speed, axis);
+//}
+
 
 int main(int argc, char * arg[])
 {
@@ -240,15 +264,26 @@ int main(int argc, char * arg[])
 				run = false;
 			}
 			if (event.type == SDL_KEYDOWN){
+				float speed = 2.0f;
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_LEFT:
+					x -= speed;
 					break;
 				case SDLK_RIGHT:
+					x += speed;
 					break;
 				case SDLK_UP:
+					y += speed;
 					break;
 				case SDLK_DOWN:
+					y -= speed;
+					break;
+				case SDLK_q:
+					z -= speed;
+					break;
+				case SDLK_e:
+					z += speed;
 					break;
 				default:
 					break;
