@@ -4,73 +4,17 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Mesh.h"
-#include"FileSystem.h"
-#include "FbxLoader.h"
+#include "FBXLoader.h"
+#include "FileSystem.h"
 
-float x = 0.0f; float  y = 0.0f;float z = 20.0f;
-
-Vertex verts[] = {
-	//Front
-	{ vec3(-0.5f, 0.5f, 0.5f),
-	vec4(1.0f, 0.0f, 1.0f, 1.0f), vec2(0.0f, 0.0f) },// Top Left
-
-	{ vec3(-0.5f, -0.5f, 0.5f),
-	vec4(1.0f, 1.0f, 0.0f, 1.0f), vec2(0.0f, 1.0f) },// Bottom Left
-
-	{ vec3(0.5f, -0.5f, 0.5f),
-	vec4(0.0f, 1.0f, 1.0f, 1.0f), vec2(1.0f, 1.0f) }, //Bottom Right
-
-	{ vec3(0.5f, 0.5f, 0.5f),
-	vec4(1.0f, 0.0f, 1.0f, 1.0f), vec2(1.0f, 0.0f) },// Top Right
-
-
-	//back
-	{ vec3(-0.5f, 0.5f, -0.5f),
-	vec4(1.0f, 0.0f, 1.0f, 1.0f), vec2(0.0f, 0.0f) },// Top Left
-
-	{ vec3(-0.5f, -0.5f, -0.5f),
-	vec4(1.0f, 1.0f, 0.0f, 1.0f), vec2(0.0f, 1.0f) },// Bottom Left
-
-	{ vec3(0.5f, -0.5f, -0.5f),
-	vec4(0.0f, 1.0f, 1.0f, 1.0f), vec2(1.0f, 1.0f) }, //Bottom Right
-
-	{ vec3(0.5f, 0.5f, -0.5f),
-	vec4(1.0f, 0.0f, 1.0f, 1.0f), vec2(1.0f, 0.0f) },// Top Right
-
-};
-
-GLuint indices[] = {
-	//front
-	0, 1, 2,
-	0, 3, 2,
-
-	//left
-	4, 5, 1,
-	4, 1, 0,
-
-	//right
-	3, 7, 2,
-	7, 6, 2,
-
-	//bottom
-	1, 5, 2,
-	6, 2, 5,
-
-	//top
-	4, 0, 7,
-	0, 7, 3,
-
-	//back
-	4, 5, 6,
-	4, 7, 6
-};
+//Camera Manipulators
+vec3 direction{ 0.0f, 0.0f, -10.0f};
 
 //matrices
 mat4 viewMatrix;
 mat4 projMatrix;
-mat4 ModelMatrix;
+mat4 worldMatrix;
 mat4 MVPMatrix;
-mat4 rotationMatrix;
 
 GLuint VBO;
 GLuint EBO;
@@ -79,41 +23,27 @@ GLuint shaderProgram;
 
 MeshData currentMesh;
 
-GLuint diffuseMap;
+vec4 ambientMaterialColour (0.3f, 0.3f, 0.3f, 1.0f);
+vec4 ambientLightColour (1.0f, 1.0f, 1.0f,1.0f);
 
-//Ambient Shader Values
-vec4 ambientMaterialColour=vec4(0.3f, 0.3f, 0.3f, 1.0f);;
-vec4 ambientLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);;
+vec4 diffuseMaterialColour(1.0f,0.0f,0.0f,1.0f);
+vec4 diffuseLightColour(1.0f,1.0f,1.0f,1.0f);
 
-//Diffuse Shader Values
-vec4 diffuseMaterialColour=vec4(0.6f,0.6f,0.6f,1.0f);
-vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+vec3 lightDirection(0.0f, 0.0f, 1.0f);
 
-vec3 LightDirection = vec3(0.0f,0.0f,1.0f);
+
 
 void initScene()
 {
 
-	string modelPath = ASSET_PATH + MODEL_PATH + "/armoredrecon.fbx";
+	string modelPath = ASSET_PATH + MODEL_PATH + "/utah-teapot.fbx";
 	loadFBXFromFile(modelPath, &currentMesh);
-
-
-	////load texture & bind
-	//string texturePath = ASSET_PATH + TEXTURE_PATH + "/Tank1DF.png";
-	//diffuseMap = loadTextureFromFile(texturePath);
-
-	//glBindTexture(GL_TEXTURE_2D, diffuseMap);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-	//glGenerateMipmap(GL_TEXTURE_2D);
-
 	//Generate Vertex Array
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
 	glBufferData(GL_ARRAY_BUFFER, currentMesh.getNumVerts()*sizeof(Vertex), &currentMesh.vertices[0], GL_STATIC_DRAW);
 
 	//create buffer
@@ -123,20 +53,18 @@ void initScene()
 	//Copy Index data to the EBO
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, currentMesh.getNumIndices()*sizeof(int), &currentMesh.indices[0], GL_STATIC_DRAW);
 
-
 	//Tell the shader that 0 is the position element
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3)));
-	
+
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) + sizeof(vec4)));
 
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) +sizeof(vec4) +sizeof(vec2)));
-
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) + sizeof(vec4))+sizeof(vec2));
 
 	GLuint vertexShaderProgram = 0;
 	string vsPath = ASSET_PATH + SHADER_PATH + "/diffuseVS.glsl";
@@ -167,7 +95,7 @@ void initScene()
 
 void cleanUp()
 {
-	glDeleteTextures(1, &diffuseMap);
+	//glDeleteTextures(1, &diffuseMap);
 	glDeleteProgram(shaderProgram);
 	glDeleteBuffers(1, &EBO);
 	glDeleteBuffers(1, &VBO);
@@ -176,14 +104,15 @@ void cleanUp()
 
 void update()
 {
-	projMatrix = glm::perspective(45.0f, 640.0f / 480.0f, 0.1f, 100.0f);
+	projMatrix = perspective(45.0f, 640.0f / 480.0f, 0.1f, 100.0f);
 
-	viewMatrix = glm::lookAt(vec3(x,y, z), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	viewMatrix = lookAt(direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 
-	ModelMatrix = glm::translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
+	worldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
 
-	MVPMatrix = projMatrix*viewMatrix*ModelMatrix;
+	MVPMatrix = projMatrix*viewMatrix*worldMatrix;
 }
+
 
 void render()
 {
@@ -196,52 +125,34 @@ void render()
 	glUseProgram(shaderProgram);
 
 	GLint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
-	GLint ModelLocation = glGetUniformLocation(shaderProgram, "Model");
-	GLint AmbientMaterialLocal = glGetUniformLocation(shaderProgram, "ambientMaterialColour");
-	GLint AmbientLightLocal = glGetUniformLocation(shaderProgram, "ambientLightColour");
+	GLuint AmbientMatColLocal = glGetUniformLocation(shaderProgram, "ambientMaterialColour");
+	GLuint AmbientLightColLocal = glGetUniformLocation(shaderProgram, "ambientLightColour");
 
-	GLint DiffuseMaterialLocal = glGetUniformLocation(shaderProgram, "diffuseMaterialColour");
-	GLint DiffuseLightLocal = glGetUniformLocation(shaderProgram, "diffuseLightColour");
-	GLint LightDirectionLocal = glGetUniformLocation(shaderProgram, "lightDirection");
-	/*GLint texture0Location = glGetUniformLocation(shaderProgram, "texture0");*/
+	GLuint DiffuseMatColLocal = glGetUniformLocation(shaderProgram, "diffuseMaterialColour");
+	GLuint DiffuseLightColLocal = glGetUniformLocation(shaderProgram, "diffuseLightColour");
 
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	GLuint LightDirectionLocal = glGetUniformLocation(shaderProgram, "lightDirection");
+
+	GLuint ModelLocal = glGetUniformLocation(shaderProgram, "Model");
+	glUniformMatrix4fv(ModelLocal, 1, GL_FALSE, glm::value_ptr(worldMatrix));
 
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVPMatrix));
-	glUniformMatrix4fv(ModelLocation, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+	glUniform4fv(AmbientMatColLocal,1, glm::value_ptr(ambientMaterialColour));
+	glUniform4fv(AmbientLightColLocal, 1, glm::value_ptr(ambientLightColour));
 
+	glUniform4fv(DiffuseMatColLocal, 1, glm::value_ptr(diffuseMaterialColour));
+	glUniform4fv(DiffuseLightColLocal, 1, glm::value_ptr(diffuseLightColour));
+
+	glUniform3fv(LightDirectionLocal, 1, glm::value_ptr(lightDirection));
 	
-	glUniform4fv(DiffuseMaterialLocal,1,glm::value_ptr(diffuseMaterialColour));
-	glUniform4fv(DiffuseLightLocal,1,glm::value_ptr(diffuseLightColour));
-
-	glUniform4fv(AmbientMaterialLocal, 1, glm::value_ptr(ambientMaterialColour));
-	glUniform4fv(AmbientLightLocal, 1, glm::value_ptr(ambientLightColour));
-
-	glUniform3fv(LightDirectionLocal, 1, glm::value_ptr(LightDirection));
-	/*glUniform1i(texture0Location, 0);*/
-
 	glBindVertexArray(VAO);
 
-
 	glDrawElements(GL_TRIANGLES, currentMesh.getNumIndices(), GL_UNSIGNED_INT, 0);
-
-
 }
-
-//float m_speed = 2.0f;
-//mat4 m_direction;
-//
-//void rotate(float amount, glm::vec3& axis)
-//{
-//	m_direction = glm::rotate(m_direction, amount * m_speed, axis);
-//}
-
 
 int main(int argc, char * arg[])
 {
 	ChangeWorkingDirectory();
-
 	//Controls the game loop
 	bool run = true;
 
@@ -258,6 +169,10 @@ int main(int argc, char * arg[])
 	if (((returnInitFlags)&	(imageInitFlags)) != imageInitFlags)	{
 
 		cout << "ERROR	SDL_Image	Init	" << IMG_GetError() << endl;
+	}
+
+	if (TTF_Init() == -1)	{
+		std::cout << "ERROR	TTF_Init:	" << TTF_GetError();
 	}
 
 	//Request opengl 4.1 context, Core Context
@@ -297,26 +212,22 @@ int main(int argc, char * arg[])
 				run = false;
 			}
 			if (event.type == SDL_KEYDOWN){
-				float speed = 2.0f;
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_LEFT:
-					x -= speed;
+					direction.x -= 2.0f;
 					break;
 				case SDLK_RIGHT:
-					x += speed;
+					direction.x += 2.0f;
 					break;
 				case SDLK_UP:
-					y += speed;
+					direction.z += 2.0f;
 					break;
 				case SDLK_DOWN:
-					y -= speed;
+					direction.z -= 2.0f;
 					break;
-				case SDLK_q:
-					z -= speed;
-					break;
-				case SDLK_e:
-					z += speed;
+				case SDLK_ESCAPE:
+					run = false;
 					break;
 				default:
 					break;
@@ -336,6 +247,8 @@ int main(int argc, char * arg[])
 	cleanUp();
 	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(window);
+	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
 
 	return 0;

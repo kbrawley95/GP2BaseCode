@@ -24,8 +24,6 @@ struct MeshData
 		vertices.clear();
 		indices.clear();
 	}
-
-
 };
 
 #endif

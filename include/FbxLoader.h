@@ -1,5 +1,5 @@
-#ifndef _FBXLoader_H
-#define _FBXLoader_H
+#ifndef FBXLoader_H
+#define FBXLoader_H
 
 #include "Common.h"
 #include "Mesh.h"

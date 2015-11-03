@@ -12,8 +12,9 @@ using namespace std;
 #include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_Image.h>
+#include <SDL_ttf.h>
 #include <SDL_opengl.h>
-#define SDL_main main
+#include <fbxsdk.h>
 
 //maths headers
 #include <glm/glm.hpp>
@@ -25,6 +26,7 @@ using namespace glm;
 const string ASSET_PATH = "assets";
 const string SHADER_PATH = "/shaders";
 const string TEXTURE_PATH = "/textures";
-const string MODEL_PATH = "/models";
+const string FONT_PATH = "/fonts";
+const string MODEL_PATH="/models";
 
 #endif

@@ -15,6 +15,24 @@ GLuint	loadTextureFromFile(const string&	filename)
 	return textureID;
 }
 
+GLuint	loadTextureFromFont(const string& fontFilename, int	pointSize, const string& text)
+{
+	TTF_Font	*	font = TTF_OpenFont(fontFilename.c_str(), pointSize);
+	if (!font)
+	{
+		cout << "Unable	to load font	" << fontFilename << "	" << TTF_GetError();
+		return	0;
+	}
+	SDL_Surface	*textSurface = TTF_RenderText_Blended(font, text.c_str(), { 255, 255, 255 });
+
+	GLuint textureID = convertSDLSurfaceToTexture(textSurface);
+	SDL_FreeSurface(textSurface);
+
+	TTF_CloseFont(font);
+
+	return textureID;
+}
+
 GLuint convertSDLSurfaceToTexture(SDL_Surface * surface)
 {
 	GLuint textureID = 0;
@@ -49,7 +67,9 @@ GLuint convertSDLSurfaceToTexture(SDL_Surface * surface)
 		cout<< "warning: the image is not truecolor.. this will	probably break";
 		return 0;
 	}
+
 	glGenTextures(1, &textureID);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, surface->w, surface->h, 0, textureFormat,
 		GL_UNSIGNED_BYTE, surface->pixels);
