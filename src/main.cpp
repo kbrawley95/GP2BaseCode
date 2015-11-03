@@ -8,7 +8,7 @@
 #include "FileSystem.h"
 
 //Camera Manipulators
-vec3 direction{ 0.0f, 0.0f, -10.0f};
+vec3 cameraPosition(0.0f, 0.0f, -10.0f);
 
 //matrices
 mat4 viewMatrix;
@@ -31,6 +31,9 @@ vec4 diffuseLightColour(1.0f,1.0f,1.0f,1.0f);
 
 vec3 lightDirection(0.0f, 0.0f, 1.0f);
 
+vec4 specularMaterialColour(1.0f,0.0f,0.0f,1.0f);
+vec4 specularLightColour(1.0f,1.0f,1.0f,1.0f);
+GLfloat specularPower=0.3f;
 
 
 void initScene()
@@ -67,12 +70,12 @@ void initScene()
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void**)(sizeof(vec3) + sizeof(vec4))+sizeof(vec2));
 
 	GLuint vertexShaderProgram = 0;
-	string vsPath = ASSET_PATH + SHADER_PATH + "/diffuseVS.glsl";
+	string vsPath = ASSET_PATH + SHADER_PATH + "/specularVS.glsl";
 	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
 	checkForCompilerErrors(vertexShaderProgram);
 
 	GLuint fragmentShaderProgram = 0;
-	string fsPath = ASSET_PATH + SHADER_PATH + "/diffuseFS.glsl";
+	string fsPath = ASSET_PATH + SHADER_PATH + "/specularFS.glsl";
 	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
 	checkForCompilerErrors(fragmentShaderProgram);
 
@@ -106,7 +109,7 @@ void update()
 {
 	projMatrix = perspective(45.0f, 640.0f / 480.0f, 0.1f, 100.0f);
 
-	viewMatrix = lookAt(direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	viewMatrix = lookAt(cameraPosition, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 
 	worldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
 
@@ -125,26 +128,35 @@ void render()
 	glUseProgram(shaderProgram);
 
 	GLint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
+	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVPMatrix));
+
 	GLuint AmbientMatColLocal = glGetUniformLocation(shaderProgram, "ambientMaterialColour");
+	glUniform4fv(AmbientMatColLocal, 1, glm::value_ptr(ambientMaterialColour));
+
 	GLuint AmbientLightColLocal = glGetUniformLocation(shaderProgram, "ambientLightColour");
-
+	glUniform4fv(AmbientLightColLocal, 1, glm::value_ptr(ambientLightColour));
+	
 	GLuint DiffuseMatColLocal = glGetUniformLocation(shaderProgram, "diffuseMaterialColour");
-	GLuint DiffuseLightColLocal = glGetUniformLocation(shaderProgram, "diffuseLightColour");
+	glUniform4fv(DiffuseMatColLocal, 1, glm::value_ptr(diffuseMaterialColour));
 
+	GLuint DiffuseLightColLocal = glGetUniformLocation(shaderProgram, "diffuseLightColour");
+	glUniform4fv(DiffuseLightColLocal, 1, glm::value_ptr(diffuseLightColour));
+	
 	GLuint LightDirectionLocal = glGetUniformLocation(shaderProgram, "lightDirection");
+	glUniform3fv(LightDirectionLocal, 1, glm::value_ptr(lightDirection));
 
 	GLuint ModelLocal = glGetUniformLocation(shaderProgram, "Model");
 	glUniformMatrix4fv(ModelLocal, 1, GL_FALSE, glm::value_ptr(worldMatrix));
 
-	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVPMatrix));
-	glUniform4fv(AmbientMatColLocal,1, glm::value_ptr(ambientMaterialColour));
-	glUniform4fv(AmbientLightColLocal, 1, glm::value_ptr(ambientLightColour));
+	GLuint SpecularMatColLocal = glGetUniformLocation(shaderProgram, "specularMaterialColour");
+	glUniform4fv(SpecularMatColLocal, 1, glm::value_ptr(specularMaterialColour));
 
-	glUniform4fv(DiffuseMatColLocal, 1, glm::value_ptr(diffuseMaterialColour));
-	glUniform4fv(DiffuseLightColLocal, 1, glm::value_ptr(diffuseLightColour));
+	GLuint SpecularLightColLocal = glGetUniformLocation(shaderProgram, "specularLightColour");
+	glUniform4fv(SpecularLightColLocal, 1, glm::value_ptr(specularLightColour));
 
-	glUniform3fv(LightDirectionLocal, 1, glm::value_ptr(lightDirection));
-	
+	GLuint SpecularPowerLocal = glGetUniformLocation(shaderProgram, "specularPower");
+	glUniform1f(SpecularPowerLocal, specularPower);
+
 	glBindVertexArray(VAO);
 
 	glDrawElements(GL_TRIANGLES, currentMesh.getNumIndices(), GL_UNSIGNED_INT, 0);
@@ -215,16 +227,16 @@ int main(int argc, char * arg[])
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_LEFT:
-					direction.x -= 2.0f;
+					cameraPosition.x -= 2.0f;
 					break;
 				case SDLK_RIGHT:
-					direction.x += 2.0f;
+					cameraPosition.x += 2.0f;
 					break;
 				case SDLK_UP:
-					direction.z += 2.0f;
+					cameraPosition.z += 2.0f;
 					break;
 				case SDLK_DOWN:
-					direction.z -= 2.0f;
+					cameraPosition.z -= 2.0f;
 					break;
 				case SDLK_ESCAPE:
 					run = false;
