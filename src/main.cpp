@@ -128,6 +128,53 @@ void createFramebuffer()
 
 }
 
+void renderScene()
+{
+	glBindRenderbuffer(GL_RENDERBUFFER, frameBufferObject);
+
+	//old imediate mode!
+	//Set the clear colour(background)
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//clear the colour and depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUseProgram(shaderProgram);
+
+	GLint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
+	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVPMatrix));
+
+	GLuint AmbientMatColLocal = glGetUniformLocation(shaderProgram, "ambientMaterialColour");
+	glUniform4fv(AmbientMatColLocal, 1, glm::value_ptr(ambientMaterialColour));
+
+	GLuint AmbientLightColLocal = glGetUniformLocation(shaderProgram, "ambientLightColour");
+	glUniform4fv(AmbientLightColLocal, 1, glm::value_ptr(ambientLightColour));
+
+	GLuint DiffuseMatColLocal = glGetUniformLocation(shaderProgram, "diffuseMaterialColour");
+	glUniform4fv(DiffuseMatColLocal, 1, glm::value_ptr(diffuseMaterialColour));
+
+	GLuint DiffuseLightColLocal = glGetUniformLocation(shaderProgram, "diffuseLightColour");
+	glUniform4fv(DiffuseLightColLocal, 1, glm::value_ptr(diffuseLightColour));
+
+	GLuint LightDirectionLocal = glGetUniformLocation(shaderProgram, "lightDirection");
+	glUniform3fv(LightDirectionLocal, 1, glm::value_ptr(lightDirection));
+
+	GLuint ModelLocal = glGetUniformLocation(shaderProgram, "Model");
+	glUniformMatrix4fv(ModelLocal, 1, GL_FALSE, glm::value_ptr(worldMatrix));
+
+	GLuint SpecularMatColLocal = glGetUniformLocation(shaderProgram, "specularMaterialColour");
+	glUniform4fv(SpecularMatColLocal, 1, glm::value_ptr(specularMaterialColour));
+
+	GLuint SpecularLightColLocal = glGetUniformLocation(shaderProgram, "specularLightColour");
+	glUniform4fv(SpecularLightColLocal, 1, glm::value_ptr(specularLightColour));
+
+	GLuint SpecularPowerLocal = glGetUniformLocation(shaderProgram, "specularPower");
+	glUniform1f(SpecularPowerLocal, specularPower);
+
+	glBindVertexArray(VAO);
+
+	glDrawElements(GL_TRIANGLES, currentMesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+}
+
 void cleanUpFramebuffer()
 {
 	glDeleteProgram(fullScreenShaderProgram);
@@ -140,7 +187,6 @@ void cleanUpFramebuffer()
 void initScene()
 {
 	createFramebuffer();
-
 
 	string modelPath = ASSET_PATH + MODEL_PATH + "/utah-teapot.fbx";
 	loadFBXFromFile(modelPath, &currentMesh);
@@ -201,13 +247,16 @@ void initScene()
 
 void cleanUp()
 {
+
+	cleanUpFramebuffer();
+
 	//glDeleteTextures(1, &diffuseMap);
 	glDeleteProgram(shaderProgram);
 	glDeleteBuffers(1, &EBO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO);
 
-	cleanUpFramebuffer();
+	
 }
 
 void update()
@@ -224,47 +273,7 @@ void update()
 
 void render()
 {
-	//old imediate mode!
-	//Set the clear colour(background)
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	//clear the colour and depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glUseProgram(shaderProgram);
-
-	GLint MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
-	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVPMatrix));
-
-	GLuint AmbientMatColLocal = glGetUniformLocation(shaderProgram, "ambientMaterialColour");
-	glUniform4fv(AmbientMatColLocal, 1, glm::value_ptr(ambientMaterialColour));
-
-	GLuint AmbientLightColLocal = glGetUniformLocation(shaderProgram, "ambientLightColour");
-	glUniform4fv(AmbientLightColLocal, 1, glm::value_ptr(ambientLightColour));
-	
-	GLuint DiffuseMatColLocal = glGetUniformLocation(shaderProgram, "diffuseMaterialColour");
-	glUniform4fv(DiffuseMatColLocal, 1, glm::value_ptr(diffuseMaterialColour));
-
-	GLuint DiffuseLightColLocal = glGetUniformLocation(shaderProgram, "diffuseLightColour");
-	glUniform4fv(DiffuseLightColLocal, 1, glm::value_ptr(diffuseLightColour));
-	
-	GLuint LightDirectionLocal = glGetUniformLocation(shaderProgram, "lightDirection");
-	glUniform3fv(LightDirectionLocal, 1, glm::value_ptr(lightDirection));
-
-	GLuint ModelLocal = glGetUniformLocation(shaderProgram, "Model");
-	glUniformMatrix4fv(ModelLocal, 1, GL_FALSE, glm::value_ptr(worldMatrix));
-
-	GLuint SpecularMatColLocal = glGetUniformLocation(shaderProgram, "specularMaterialColour");
-	glUniform4fv(SpecularMatColLocal, 1, glm::value_ptr(specularMaterialColour));
-
-	GLuint SpecularLightColLocal = glGetUniformLocation(shaderProgram, "specularLightColour");
-	glUniform4fv(SpecularLightColLocal, 1, glm::value_ptr(specularLightColour));
-
-	GLuint SpecularPowerLocal = glGetUniformLocation(shaderProgram, "specularPower");
-	glUniform1f(SpecularPowerLocal, specularPower);
-
-	glBindVertexArray(VAO);
-
-	glDrawElements(GL_TRIANGLES, currentMesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+	renderScene();
 }
 
 int main(int argc, char * arg[])

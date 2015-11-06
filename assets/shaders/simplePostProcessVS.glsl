@@ -5,6 +5,6 @@ out vec2 textureCoords;
 
 void main()
 {
-	textureCoords=(vertexPosition +1.0f)/2.0f;
-	gl_Position=(vertexPosition.x, vertexPosition.y, 0.0f, 1.0f);
+	textureCoords=(vertexPosition +1.0)/2.0;
+	gl_Position=vec4(vertexPosition, 0.0, 1.0);
 }
