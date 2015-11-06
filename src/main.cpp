@@ -49,7 +49,7 @@ GLuint FBODepthBuffer;
 GLuint frameBufferObject;
 GLuint fullScreenVAO;
 GLuint fullscreenVBO;
-GLuint fullScrrenShaderProgram;
+GLuint fullScreenShaderProgram;
 
 const int FRAME_BUFFER_WIDTH = 640;
 const int FRAME_BUFFER_HEIGHT = 480;
@@ -114,15 +114,15 @@ void createFramebuffer()
 	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
 	checkForCompilerErrors(fragmentShaderProgram);
 
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShaderProgram);
-	glAttachShader(shaderProgram, fragmentShaderProgram);
+	fullScreenShaderProgram = glCreateProgram();
+	glAttachShader(fullScreenShaderProgram, vertexShaderProgram);
+	glAttachShader(fullScreenShaderProgram, fragmentShaderProgram);
 
 	//Link attributes
-	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
+	glBindAttribLocation(fullScreenShaderProgram, 0, "vertexPosition");
 
-	glLinkProgram(shaderProgram);
-	checkForLinkErrors(shaderProgram);
+	glLinkProgram(fullScreenShaderProgram);
+	checkForLinkErrors(fullScreenShaderProgram);
 	//now we can delete the VS & FS Programs
 	glDeleteShader(vertexShaderProgram);
 
