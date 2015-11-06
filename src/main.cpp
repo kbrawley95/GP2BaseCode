@@ -7,6 +7,14 @@
 #include "FBXLoader.h"
 #include "FileSystem.h"
 
+float vertices[] =
+{
+	-1, 1,
+	1, 1,
+	-1, 1,
+	1, 1,
+};
+
 //Camera Manipulators
 vec3 cameraPosition(0.0f, 0.0f, -10.0f);
 
@@ -93,6 +101,18 @@ void createFramebuffer()
 void initScene()
 {
 	createFramebuffer();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
+	glGenVertexArrays(1, &fullScreenVAO);
+	glBindVertexArray(fullScreenVAO);
+	glGenBuffers(1, &fullscreenVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, fullscreenVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex), vertices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
+
 
 	string modelPath = ASSET_PATH + MODEL_PATH + "/utah-teapot.fbx";
 	loadFBXFromFile(modelPath, &currentMesh);
