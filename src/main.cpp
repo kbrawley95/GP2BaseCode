@@ -94,6 +94,38 @@ void createFramebuffer()
 		cout << "Issue with Framebuffers: " << SDL_GetError() << endl;
 	}
 
+	glGenVertexArrays(1, &fullScreenVAO);
+	glBindVertexArray(fullScreenVAO);
+	glGenBuffers(1, &fullscreenVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, fullscreenVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	GLuint vertexShaderProgram = 0;
+	string vsPath = ASSET_PATH + SHADER_PATH + "/simplePostProcessVS.glsl";
+	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
+	checkForCompilerErrors(vertexShaderProgram);
+
+	GLuint fragmentShaderProgram = 0;
+	string fsPath = ASSET_PATH + SHADER_PATH + "/simplePostProcessFS.glsl";
+	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
+	checkForCompilerErrors(fragmentShaderProgram);
+
+	shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShaderProgram);
+	glAttachShader(shaderProgram, fragmentShaderProgram);
+
+	//Link attributes
+	glBindAttribLocation(shaderProgram, 0, "vertexPosition");
+
+	glLinkProgram(shaderProgram);
+	checkForLinkErrors(shaderProgram);
+	//now we can delete the VS & FS Programs
+	glDeleteShader(vertexShaderProgram);
+
 }
 
 
@@ -101,17 +133,6 @@ void createFramebuffer()
 void initScene()
 {
 	createFramebuffer();
-
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
-	glGenVertexArrays(1, &fullScreenVAO);
-	glBindVertexArray(fullScreenVAO);
-	glGenBuffers(1, &fullscreenVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, fullscreenVBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex), vertices, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
 
 
 	string modelPath = ASSET_PATH + MODEL_PATH + "/utah-teapot.fbx";
