@@ -36,8 +36,10 @@ FbxString GetAttributeTypeName(FbxNodeAttribute::EType type) {
 	}
 }
 
-bool loadFBXFromFile(const string& filename, MeshData *meshData)
+shared_ptr<GameObject> loadFBXFromFile(const string& filename)
 {
+	shared_ptr<GameObject> gameObject = shared_ptr<GameObject>(new GameObject);
+
   level = 0;
 	// Initialize the SDK manager. This object handles memory management.
 	FbxManager* lSdkManager = FbxManager::Create();
@@ -71,16 +73,18 @@ bool loadFBXFromFile(const string& filename, MeshData *meshData)
 		cout << "Root Node " << lRootNode->GetName() << endl;
 		for (int i = 0; i < lRootNode->GetChildCount(); i++)
 		{
-			processNode(lRootNode->GetChild(i),meshData);
+			processNode(lRootNode->GetChild(i),gameObject);
 		}
 	}
 
 	lImporter->Destroy();
-	return true;
+	return gameObject;
 }
 
-void processNode(FbxNode *node, MeshData *meshData)
+void processNode(FbxNode *node, shared_ptr<GameObject> parent)
 {
+	shared_ptr<GameObject> currentGameObject = shared_ptr<GameObject>(new GameObject);
+	parent->addChild(currentGameObject);
 	PrintTabs();
 	const char* nodeName = node->GetName();
 	FbxDouble3 translation =  node->LclTranslation.Get();
@@ -94,17 +98,17 @@ void processNode(FbxNode *node, MeshData *meshData)
 	level++;
 	// Print the node's attributes.
 	for (int i = 0; i < node->GetNodeAttributeCount(); i++){
-		processAttribute(node->GetNodeAttributeByIndex(i),meshData);
+		processAttribute(node->GetNodeAttributeByIndex(i),currentGameObject);
 	}
 
 	// Recursively print the children.
 	for (int j = 0; j < node->GetChildCount(); j++)
-		processNode(node->GetChild(j),meshData);
+		processNode(node->GetChild(j),currentGameObject);
 	level--;
 	PrintTabs();
 }
 
-void processAttribute(FbxNodeAttribute * attribute, MeshData *meshData)
+void processAttribute(FbxNodeAttribute * attribute, shared_ptr<GameObject> gameObject)
 {
 	if (!attribute) return;
 	FbxString typeName = GetAttributeTypeName(attribute->GetAttributeType());
@@ -112,13 +116,13 @@ void processAttribute(FbxNodeAttribute * attribute, MeshData *meshData)
 	PrintTabs();
 	cout << "Attribute " << typeName.Buffer() << " Name " << attrName << endl;
 	switch (attribute->GetAttributeType()) {
-	case FbxNodeAttribute::eMesh: processMesh(attribute->GetNode()->GetMesh(), meshData);
+	case FbxNodeAttribute::eMesh: processMesh(attribute->GetNode()->GetMesh(), gameObject);
 	case FbxNodeAttribute::eCamera: return;
 	case FbxNodeAttribute::eLight: return;
 	}
 }
 
-void processMesh(FbxMesh * mesh, MeshData *meshData)
+void processMesh(FbxMesh * mesh, shared_ptr<GameObject> gameObject)
 {
 
 	int numVerts = mesh->GetControlPointsCount();
@@ -138,14 +142,8 @@ void processMesh(FbxMesh * mesh, MeshData *meshData)
 	processMeshTextureCoords(mesh, pVerts, numVerts);
 	processMeshNormals(mesh, pVerts, numVerts);
 
-	for (int i = 0; i < numVerts; i++)
-	{
-		meshData->vertices.push_back(pVerts[i]);
-	}
-	for (int i = 0; i < numIndices; i++)
-	{
-		meshData->indices.push_back(pIndices[i]);
-	}
+	gameObject->createBuffers(pVerts, numVerts, pIndices, numIndices);
+
 	cout << "Vertices " << numVerts << " Indices " << numIndices << endl;
 
 

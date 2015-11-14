@@ -54,6 +54,11 @@ public:
 		return m_VAO;
 	};
 
+	GLuint getShaderProgram()
+	{
+		return m_ShaderProgram;
+	};
+
 	mat4& getModelMatrix()
 	{
 		return m_ModelMatrix;
