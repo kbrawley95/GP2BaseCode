@@ -7,10 +7,9 @@
 #include "FBXLoader.h"
 #include "FileSystem.h"
 #include "GameObject.h"
+#include "Camera.h"
 
-//matrices
-mat4 viewMatrix;
-mat4 projMatrix;
+
 
 mat4 MVPMatrix;
 
@@ -43,6 +42,8 @@ float elapsedTime;
 float totalTime;
 
 vec2 screenResolution = vec2(FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+
+Camera camera(vec3(0, 0, -20), 70.0f, (float)screenResolution.x / (float)screenResolution.y, 0.01f, 100.0f);
 
 void createFramebuffer()
 {
@@ -122,6 +123,7 @@ void createFramebuffer()
 
 void initScene()
 {
+
 	currentTicks = SDL_GetTicks();
 	totalTime = 0.0f;
 	//createFramebuffer();
@@ -146,15 +148,13 @@ void initScene()
 	currentGameObject->setPosition(vec3(0.0f, -10.0f, 0.0f));
 
 
-	//Model 2 (Tank)
-	modelPath = ASSET_PATH + MODEL_PATH + "/Tank1.fbx";
+	//Model 2 (Art Gallery)
+	modelPath = ASSET_PATH + MODEL_PATH + "/Art_Gallery1.fbx";
 	currentGameObject = loadFBXFromFile(modelPath);
-	vsPath = ASSET_PATH + SHADER_PATH + "/textureVS.glsl";
-	fsPath = ASSET_PATH + SHADER_PATH + "/textureFS.glsl";
-	currentGameObject->loadShader(vsPath, fsPath);
 
-	texturePath = ASSET_PATH + TEXTURE_PATH + "/Tank1DF.png";
-	currentGameObject->loadDiffuseMap(texturePath);
+	vsPath = ASSET_PATH + SHADER_PATH + "/specularVS.glsl";
+	fsPath = ASSET_PATH + SHADER_PATH + "/specularFS.glsl";
+	currentGameObject->loadShader(vsPath, fsPath);
 
 	gameObjects.push_back(currentGameObject);
 
@@ -184,19 +184,17 @@ void update()
 	elapsedTime = (currentTicks - lastTicks) / 1000.0f;
 	totalTime += elapsedTime;
 
-	projMatrix = perspective(45.0f, 640.0f / 480.0f, 0.1f, 100.0f);
-
-	viewMatrix = lookAt(cameraPosition, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-
 	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); iter++)
 	{
 		(*iter)->update();
 	}
+
+	camera.Update();
 }
 
 void renderGameObject(shared_ptr<GameObject> gameObject)
 {
-	MVPMatrix = projMatrix*viewMatrix*gameObject->getModelMatrix();
+	MVPMatrix =camera.GetLookAt()*gameObject->getModelMatrix();
 
 	if (gameObject->getShaderProgram() > 0){
 		currentShaderProgam = gameObject->getShaderProgram();
@@ -366,16 +364,20 @@ int main(int argc, char * arg[])
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_LEFT:
-					cameraPosition.x -= 2.0f;
+					camera.SetPosition(vec3(-2, 0, 0));
+					cout << to_string(camera.Position()) << endl;
 					break;
 				case SDLK_RIGHT:
-					cameraPosition.x += 2.0f;
+					camera.SetPosition(vec3(2, 0, 0));
+					cout <<to_string(camera.Position()) << endl;
 					break;
 				case SDLK_UP:
-					cameraPosition.y -= 2.0f;
+					camera.SetPosition(vec3(0, 0, 2));
+					cout << to_string(camera.Position()) << endl;
 					break;
 				case SDLK_DOWN:
-					cameraPosition.y += 2.0f;
+					camera.SetPosition(vec3(0, 0, -2));
+					cout << to_string(camera.Position()) << endl;
 					break;
 				default:
 					break;
@@ -384,7 +386,14 @@ int main(int argc, char * arg[])
 
 			if (event.type == SDL_MOUSEMOTION)
 			{
-
+				if (event.button.x > 0 && event.button.x < 90)
+				{
+					camera.SetRotation(vec3(0, 45, 0));
+				}
+				else if (event.button.x>90 && event.button.x < 360)
+				{
+					camera.SetRotation(vec3(0, 45, 0));
+				}
 			}
 		}
 		//init Scene
