@@ -41,6 +41,10 @@ unsigned int lastTicks, currentTicks;
 float elapsedTime;
 float totalTime;
 
+int prevTime = 0;
+int currentTime = 0;
+float deltaTime = 0;
+
 vec2 screenResolution = vec2(FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 
 Camera camera(vec3(0, 0, -20), 70.0f, (float)screenResolution.x / (float)screenResolution.y, 0.01f, 100.0f);
@@ -301,6 +305,9 @@ void render()
 
 int main(int argc, char * arg[])
 {
+	//Keyboard State
+	const Uint8 *keyboardState;
+
 	ChangeWorkingDirectory();
 	//Controls the game loop
 	bool run = true;
@@ -353,6 +360,10 @@ int main(int argc, char * arg[])
 	//Game Loop
 	while (run)
 	{
+		prevTime = currentTime;
+		currentTime = SDL_GetTicks();	//Returns the amount of milliseconds since the execution of app
+		deltaTime = (currentTime - prevTime) / 1000.0f;	//Calculate 
+
 		//While we still have events in the queue
 		while (SDL_PollEvent(&event)) {
 			//Get event type
@@ -363,21 +374,8 @@ int main(int argc, char * arg[])
 			if (event.type == SDL_KEYDOWN){
 				switch (event.key.keysym.sym)
 				{
-				case SDLK_LEFT:
-					camera.SetPosition(vec3(-2, 0, 0));
-					cout << to_string(camera.Position()) << endl;
-					break;
-				case SDLK_RIGHT:
-					camera.SetPosition(vec3(2, 0, 0));
-					cout <<to_string(camera.Position()) << endl;
-					break;
-				case SDLK_UP:
-					camera.SetPosition(vec3(0, 0, 2));
-					cout << to_string(camera.Position()) << endl;
-					break;
-				case SDLK_DOWN:
-					camera.SetPosition(vec3(0, 0, -2));
-					cout << to_string(camera.Position()) << endl;
+				case SDLK_ESCAPE:
+					run = false;
 					break;
 				default:
 					break;
@@ -386,16 +384,28 @@ int main(int argc, char * arg[])
 
 			if (event.type == SDL_MOUSEMOTION)
 			{
-				if (event.button.x > 0 && event.button.x < 90)
-				{
-					camera.SetRotation(vec3(0, 45, 0));
-				}
-				else if (event.button.x>90 && event.button.x < 360)
-				{
-					camera.SetRotation(vec3(0, 45, 0));
-				}
 			}
 		}
+
+		keyboardState = SDL_GetKeyboardState(NULL);
+
+		if (keyboardState[SDL_SCANCODE_LEFT])
+		{
+			camera.SetPosition(vec3(2, 0, 0)*vec3(deltaTime, 0, 0));
+		}
+		else if (keyboardState[SDL_SCANCODE_RIGHT])
+		{
+			camera.SetPosition(vec3(-2, 0, 0)*vec3(deltaTime, 0, 0));
+		}
+		else if (keyboardState[SDL_SCANCODE_UP])
+		{
+			camera.SetPosition(vec3(0, 0, 2)*vec3(0, 0, deltaTime));
+		}
+		else if (keyboardState[SDL_SCANCODE_DOWN])
+		{
+			camera.SetPosition(vec3(0, 0, -2)*vec3(0, 0, deltaTime));
+		}
+
 		//init Scene
 		update();
 		//render
