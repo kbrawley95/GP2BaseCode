@@ -6,6 +6,7 @@ GameObject::GameObject()
 {
 	m_VBO = 0;
 	m_EBO = 0;
+	m_VAO = 0;
 	m_NoOfIndices = 0;
 	m_NoOfVertices = 0;
 
@@ -16,7 +17,6 @@ GameObject::GameObject()
 	m_Rotation = vec3(0.0f);
 	m_Scale = vec3(1.0f);
 
-
 	m_AmbientMaterial = vec4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_DiffuseMaterial = vec4(0.8f, 0.8f, 0.8f, 1.0f);
 	m_SpecularMaterial = vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -25,7 +25,7 @@ GameObject::GameObject()
 	m_ChildGameObjects.clear();
 
 	m_ParentGameObject = NULL;
-
+	m_DiffuseMap = 0;
 }
 
 GameObject::~GameObject()
@@ -45,12 +45,12 @@ void GameObject::update()
 	{
 		parentModel = m_ParentGameObject->getModelMatrix();
 	}
-
 	mat4 translationMatrix = translate(mat4(1.0f), m_Position);
 	mat4 scaleMatrix = scale(mat4(1.0f), m_Scale);
 
 	mat4 rotationMatrix = rotate(mat4(1.0f), m_Rotation.x, vec3(1.0f, 0.0f, 0.0f))*
-		rotate(mat4(1.0f), m_Rotation.y, vec3(0.0f, 1.0f, 0.0f))* rotate(mat4(1.0f), m_Rotation.z, vec3(0.0f, 0.0f, 1.0f));
+		rotate(mat4(1.0f), m_Rotation.y, vec3(0.0f, 1.0f, 0.0f))*
+		rotate(mat4(1.0f), m_Rotation.z, vec3(0.0f, 0.0f, 1.0f));
 
 	m_ModelMatrix = scaleMatrix*rotationMatrix*translationMatrix;
 	m_ModelMatrix *= parentModel;
@@ -85,9 +85,9 @@ void GameObject::createBuffers(Vertex * pVerts, int numVerts, int *pIndices, int
 	glGenBuffers(1, &m_EBO);
 	//Make the EBO active
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-	//Copy Index data to EBO
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices*sizeof(int), pIndices,GL_STATIC_DRAW);
-	
+	//Copy Index data to the EBO
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices*sizeof(int), pIndices, GL_STATIC_DRAW);
+
 	//Tell the shader that 0 is the position element
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
@@ -100,7 +100,6 @@ void GameObject::createBuffers(Vertex * pVerts, int numVerts, int *pIndices, int
 
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-
 }
 
 void GameObject::loadShader(const string& vsFilename, const string& fsFilename)
@@ -109,25 +108,25 @@ void GameObject::loadShader(const string& vsFilename, const string& fsFilename)
 	vertexShaderProgram = loadShaderFromFile(vsFilename, VERTEX_SHADER);
 	checkForCompilerErrors(vertexShaderProgram);
 
-	GLuint fragementShaderProgram = 0;
-	fragementShaderProgram = loadShaderFromFile(fsFilename, FRAGMENT_SHADER);
-	checkForCompilerErrors(fragementShaderProgram);
+	GLuint fragmentShaderProgram = 0;
+	fragmentShaderProgram = loadShaderFromFile(fsFilename, FRAGMENT_SHADER);
+	checkForCompilerErrors(fragmentShaderProgram);
 
 	m_ShaderProgram = glCreateProgram();
 	glAttachShader(m_ShaderProgram, vertexShaderProgram);
-	glAttachShader(m_ShaderProgram, fragementShaderProgram);
+	glAttachShader(m_ShaderProgram, fragmentShaderProgram);
 
 	//Link attributes
-	glBindAttribLocation(m_ShaderProgram, 0, "vertexPsosition");
+	glBindAttribLocation(m_ShaderProgram, 0, "vertexPosition");
 	glBindAttribLocation(m_ShaderProgram, 1, "vertexColour");
 	glBindAttribLocation(m_ShaderProgram, 2, "vertexTexCoords");
 	glBindAttribLocation(m_ShaderProgram, 3, "vertexNormal");
 
 	glLinkProgram(m_ShaderProgram);
 	checkForLinkErrors(m_ShaderProgram);
-	//now we cand elete the VS & FS Programs
+	//now we can delete the VS & FS Programs
 	glDeleteShader(vertexShaderProgram);
-	glDeleteShader(fragementShaderProgram);
+	glDeleteShader(fragmentShaderProgram);
 }
 
 void GameObject::loadDiffuseMap(const string& filename)
@@ -139,3 +138,4 @@ void GameObject::loadDiffuseMap(const string& filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
+

@@ -6,8 +6,7 @@
 
 class GameObject
 {
-public: 
-	
+public:
 	GameObject();
 	~GameObject();
 
@@ -24,7 +23,7 @@ public:
 		m_Position = position;
 	};
 
-	void setRotation(const vec3&  rotation)
+	void setRotation(const vec3& rotation)
 	{
 		m_Rotation = rotation;
 	};
@@ -89,7 +88,7 @@ public:
 		return m_NoOfIndices;
 	};
 
-	int getNumberOfVertices()
+	int getNumberOfVetices()
 	{
 		return m_NoOfVertices;
 	};
@@ -98,7 +97,6 @@ public:
 	{
 		return m_DiffuseMap;
 	};
-
 private:
 	GLuint m_VBO;
 	GLuint m_EBO;
@@ -119,9 +117,8 @@ private:
 
 	GLuint m_DiffuseMap;
 
-	vector<shared_ptr<GameObject> >m_ChildGameObjects;
+	vector<shared_ptr<GameObject> > m_ChildGameObjects;
 	GameObject * m_ParentGameObject;
-
 };
 
 #endif

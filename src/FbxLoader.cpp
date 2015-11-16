@@ -39,8 +39,7 @@ FbxString GetAttributeTypeName(FbxNodeAttribute::EType type) {
 shared_ptr<GameObject> loadFBXFromFile(const string& filename)
 {
 	shared_ptr<GameObject> gameObject = shared_ptr<GameObject>(new GameObject);
-
-  level = 0;
+	level = 0;
 	// Initialize the SDK manager. This object handles memory management.
 	FbxManager* lSdkManager = FbxManager::Create();
 
@@ -54,7 +53,7 @@ shared_ptr<GameObject> loadFBXFromFile(const string& filename)
 	// Create a new scene so that it can be populated by the imported file.
 	if (!lImporter->Initialize(filename.c_str(), -1, lSdkManager->GetIOSettings()))
 	{
-		return false;
+		return gameObject;
 	}
 
 	// Create a new scene so that it can be populated by the imported file.
@@ -62,8 +61,8 @@ shared_ptr<GameObject> loadFBXFromFile(const string& filename)
 	// Import the contents of the file into the scene.
 	lImporter->Import(lScene);
 
-	FbxGeometryConverter IGeomConverter(lSdkManager);
-	IGeomConverter.Triangulate(lScene, /*replace*/true);
+	FbxGeometryConverter lGeomConverter(lSdkManager);
+	lGeomConverter.Triangulate(lScene, /*replace*/true);
 
 	// Print the nodes of the scene and their attributes recursively.
 	// Note that we are not printing the root node because it should
@@ -73,7 +72,7 @@ shared_ptr<GameObject> loadFBXFromFile(const string& filename)
 		cout << "Root Node " << lRootNode->GetName() << endl;
 		for (int i = 0; i < lRootNode->GetChildCount(); i++)
 		{
-			processNode(lRootNode->GetChild(i),gameObject);
+			processNode(lRootNode->GetChild(i), gameObject);
 		}
 	}
 
@@ -87,7 +86,7 @@ void processNode(FbxNode *node, shared_ptr<GameObject> parent)
 	parent->addChild(currentGameObject);
 	PrintTabs();
 	const char* nodeName = node->GetName();
-	FbxDouble3 translation =  node->LclTranslation.Get();
+	FbxDouble3 translation = node->LclTranslation.Get();
 	FbxDouble3 rotation = node->LclRotation.Get();
 	FbxDouble3 scaling = node->LclScaling.Get();
 
@@ -95,15 +94,19 @@ void processNode(FbxNode *node, shared_ptr<GameObject> parent)
 		<< " Rotation " << rotation[0] << " " << rotation[1] << " " << rotation[2] << " "
 		<< " Scale " << scaling[0] << " " << scaling[1] << " " << scaling[2] << endl;
 
+	currentGameObject->setPosition(vec3(translation[0], translation[1], translation[2]));
+	currentGameObject->setRotation(vec3(rotation[0], rotation[1], rotation[2]));
+	currentGameObject->setScale(vec3(scaling[0], scaling[1], scaling[2]));
+
 	level++;
 	// Print the node's attributes.
 	for (int i = 0; i < node->GetNodeAttributeCount(); i++){
-		processAttribute(node->GetNodeAttributeByIndex(i),currentGameObject);
+		processAttribute(node->GetNodeAttributeByIndex(i), currentGameObject);
 	}
 
 	// Recursively print the children.
 	for (int j = 0; j < node->GetChildCount(); j++)
-		processNode(node->GetChild(j),currentGameObject);
+		processNode(node->GetChild(j), currentGameObject);
 	level--;
 	PrintTabs();
 }
@@ -135,7 +138,8 @@ void processMesh(FbxMesh * mesh, shared_ptr<GameObject> gameObject)
 	{
 		FbxVector4 currentVert = mesh->GetControlPointAt(i);
 		pVerts[i].position = vec3(currentVert[0], currentVert[1], currentVert[2]);
-		pVerts[i].colour= vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		pVerts[i].colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		pVerts[i].normal = vec3(0.0f, 0.0f, 0.0f);
 		pVerts[i].texCoords = vec2(0.0f, 0.0f);
 	}
 
@@ -186,10 +190,8 @@ void processMeshTextureCoords(FbxMesh * mesh, Vertex * verts, int numVerts)
 
 void processMeshNormals(FbxMesh * mesh, Vertex * verts, int numVerts)
 {
-	for (int iPolygon = 0; iPolygon < mesh->GetPolygonCount(); iPolygon++)
-	{
-		for (unsigned iPolygonVertex = 0; iPolygonVertex < 3; iPolygonVertex++)
-		{
+	for (int iPolygon = 0; iPolygon < mesh->GetPolygonCount(); iPolygon++) {
+		for (unsigned iPolygonVertex = 0; iPolygonVertex < 3; iPolygonVertex++) {
 			int fbxCornerIndex = mesh->GetPolygonVertex(iPolygon, iPolygonVertex);
 			FbxVector4 fbxNormal;
 			mesh->GetPolygonVertexNormal(iPolygon, iPolygonVertex, fbxNormal);
@@ -197,7 +199,6 @@ void processMeshNormals(FbxMesh * mesh, Vertex * verts, int numVerts)
 			verts[fbxCornerIndex].normal.x = fbxNormal[0];
 			verts[fbxCornerIndex].normal.y = fbxNormal[1];
 			verts[fbxCornerIndex].normal.z = fbxNormal[2];
-
 		}
 	}
 }

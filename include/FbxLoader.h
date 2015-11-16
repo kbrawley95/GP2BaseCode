@@ -7,8 +7,6 @@
 #include "GameObject.h"
 #include <fbxsdk.h>
 
-
-
 shared_ptr<GameObject> loadFBXFromFile(const string& filename);
 
 void processNode(FbxNode *node, shared_ptr<GameObject> parent);
