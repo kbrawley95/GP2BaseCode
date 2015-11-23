@@ -30,9 +30,6 @@ GameObject::GameObject()
 
 GameObject::~GameObject()
 {
-	glDeleteBuffers(1, &m_VBO);
-	glDeleteBuffers(1, &m_EBO);
-	glDeleteVertexArrays(1, &m_VAO);
 	glDeleteProgram(m_ShaderProgram);
 	glDeleteTextures(1, &m_DiffuseMap);
 	m_ChildGameObjects.clear();

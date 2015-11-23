@@ -2,6 +2,8 @@
 #define _LIGHT_H
 
 #include"Common.h"
+#include "Camera.h"
+#include "GameObject.h"
 
 class Light
 {
@@ -33,6 +35,9 @@ public:
 	{
 		return m_specularPower;
 	};
+
+	void CalculateLighting(Camera& camera, shared_ptr<GameObject>& gameObject);
+	
 
 private:
 
