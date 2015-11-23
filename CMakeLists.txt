@@ -4,9 +4,14 @@ project (GP2BaseCode)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 list( APPEND CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS} -ftest-coverage -fprofile-arcs")
 
+#find packages
+message("3rd party dependencies: $ENV{CMAKE_PREFIX_PATH}")
+SET(CMAKE_PREFIX_PATH "$ENV{CMAKE_PREFIX_PATH}")
+
 set(CMAKE_PREFIX_PATH "C:/Users/Kieran/Documents/Uni Work/Games Programming/OpenGLFramework/glew-1.12.0-win32/glew-1.12.0/include")
 set(CMAKE_LIBRARY_PATH "C:/Users/Kieran/Documents/Uni Work/Games Programming/OpenGLFramework/glew-1.12.0-win32/glew-1.12.0/lib/Release/x64/glew32.lib")
 
+#Make sure packages are installed before continuing
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_Image REQUIRED)
@@ -15,6 +20,7 @@ find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
 find_package(FBX REQUIRED)
 
+#Source Files
 FILE(GLOB C_SRCS src/*.cpp include/*.h)
 ADD_EXECUTABLE(GP2BaseCode ${C_SRCS})
 
