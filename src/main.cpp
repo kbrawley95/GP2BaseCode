@@ -10,7 +10,7 @@
 #include "Camera.h"
 #include "gameObject.h"
 #include "Cube.h"
-
+#include "Light.h"
 
 
 mat4 MVPMatrix;
@@ -21,15 +21,6 @@ shared_ptr<GameObject> gameObject;
 
 GLuint currentShaderProgam = 0;
 GLuint currentDiffuseMap = 0;
-
-
-vec4 ambientLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-vec4 specularLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-float specularPower = 25.0f;
-
-vec3 lightDirection = vec3(0.0f, 0.0f, 1.0f);
-vec3 cameraPosition = vec3(0.0f, 0.0f, 20.0f);
 
 //for Framebuffer
 GLuint FBOTexture;
@@ -53,6 +44,7 @@ float deltaTime = 0;
 vec2 screenResolution = vec2(FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 
 Camera camera(vec3(0, 0, -20), 70.0f, (float)screenResolution.x / (float)screenResolution.y, 0.01f, 100.0f);
+shared_ptr<Light> light;
 
 
 void createFramebuffer()
@@ -184,6 +176,7 @@ void update()
 void renderGameObject(shared_ptr<GameObject> gameObject)
 {
 	MVPMatrix =camera.GetLookAt()*gameObject->getModelMatrix();
+	
 
 	if (gameObject->getShaderProgram() > 0){
 		currentShaderProgam = gameObject->getShaderProgram();
@@ -218,17 +211,17 @@ void renderGameObject(shared_ptr<GameObject> gameObject)
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, value_ptr(MVPMatrix));
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, value_ptr(gameObject->getModelMatrix()));
 
-	glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
+	glUniform4fv(ambientLightColourLocation, 1, value_ptr(light->GetAmbientLightColour()));
 	glUniform4fv(ambientMaterialColourLocation, 1, value_ptr(gameObject->getAmbientMaterial()));
 
-	glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+	glUniform4fv(diffuseLightColourLocation, 1, value_ptr(light->GetDiffuseLightColour()));
 	glUniform4fv(diffuseLightMaterialLocation, 1, value_ptr(gameObject->getDiffuseMaterial()));
-	glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
+	glUniform3fv(lightDirectionLocation, 1, value_ptr(light->GetLightDirection()));
 
-	glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
+	glUniform4fv(specularLightColourLocation, 1, value_ptr(light->GetSpecularLightColour()));
 	glUniform4fv(specularLightMaterialLocation, 1, value_ptr(gameObject->getSpecularMaterial()));
-	glUniform1f(specularPowerLocation, gameObject->getSpecularPower());
-	glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
+	glUniform1f(specularPowerLocation,light->GetSpecularPower());
+	glUniform3fv(cameraPositionLocation, 1, value_ptr(camera.Position()));
 
 
 	glBindVertexArray(gameObject->getVertexArrayObject());
@@ -256,7 +249,6 @@ void renderScene()
 	{
 		renderGameObject((*iter));
 	}
-
 
 
 }
