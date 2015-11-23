@@ -8,12 +8,17 @@
 #include "FileSystem.h"
 #include "GameObject.h"
 #include "Camera.h"
+#include "gameObject.h"
+#include "Cube.h"
 
 
 
 mat4 MVPMatrix;
 
 vector<shared_ptr<GameObject> > gameObjects;
+//gameObject
+shared_ptr<GameObject> gameObject;
+
 GLuint currentShaderProgam = 0;
 GLuint currentDiffuseMap = 0;
 
@@ -48,6 +53,7 @@ float deltaTime = 0;
 vec2 screenResolution = vec2(FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 
 Camera camera(vec3(0, 0, -20), 70.0f, (float)screenResolution.x / (float)screenResolution.y, 0.01f, 100.0f);
+
 
 void createFramebuffer()
 {
@@ -127,40 +133,19 @@ void createFramebuffer()
 
 void initScene()
 {
+	createFramebuffer();
+	gameObject = shared_ptr<GameObject>(new GameObject);
 
-	currentTicks = SDL_GetTicks();
-	totalTime = 0.0f;
-	//createFramebuffer();
+	gameObject->createBuffers(gameObjectVerts, numOfgameObjectVerts, gameObjectIndices,numOfgameObjectIndices);
+	
+	//VS & FS Shaders
+	string vsPath = ASSET_PATH + SHADER_PATH + "/simpleVS.glsl";
+	string fsPath = ASSET_PATH + SHADER_PATH + "/simpleFS.glsl";
 
-	//Model 1 (Armored Vehicle)
-	string modelPath = ASSET_PATH + MODEL_PATH + "/armoredrecon.fbx";
-	auto currentGameObject = loadFBXFromFile(modelPath);
+	gameObject->loadShader(vsPath, fsPath);
+	gameObjects.push_back(gameObject);
 
-	//Specular Lighting Shaders
-	/*string vsPath = ASSET_PATH + SHADER_PATH + "/specularVS.glsl";
-	string fsPath = ASSET_PATH + SHADER_PATH + "/specularFS.glsl";*/
-
-	string vsPath = ASSET_PATH + SHADER_PATH + "/textureVS.glsl";
-	string fsPath = ASSET_PATH + SHADER_PATH + "/textureFS.glsl";
-
-	currentGameObject->loadShader(vsPath, fsPath);
-
-	string texturePath = ASSET_PATH + TEXTURE_PATH + "/armoredrecon_diff.png";
-	currentGameObject->loadDiffuseMap(texturePath);
-
-	gameObjects.push_back(currentGameObject);
-	currentGameObject->setPosition(vec3(0.0f, -10.0f, 0.0f));
-
-
-	//Model 2 (Art Gallery)
-	modelPath = ASSET_PATH + MODEL_PATH + "/Art_Gallery1.fbx";
-	currentGameObject = loadFBXFromFile(modelPath);
-
-	vsPath = ASSET_PATH + SHADER_PATH + "/specularVS.glsl";
-	fsPath = ASSET_PATH + SHADER_PATH + "/specularFS.glsl";
-	currentGameObject->loadShader(vsPath, fsPath);
-
-	gameObjects.push_back(currentGameObject);
+	gameObject->setPosition(vec3(0, 0, -17));
 
 }
 
@@ -258,16 +243,22 @@ void renderGameObject(shared_ptr<GameObject> gameObject)
 
 void renderScene()
 {
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//Set the clear colour(background)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	
+
 	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); iter++)
 	{
 		renderGameObject((*iter));
 	}
+
+
+
 }
 
 void renderPostQuad()
@@ -301,6 +292,28 @@ void render()
 {
 	renderScene();
 	//renderPostQuad();
+}
+
+void renderCube()
+{
+	MVPMatrix = camera.GetLookAt()*gameObject->getModelMatrix();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//Set the clear colour(background)
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	//clear the colour and depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUseProgram(currentShaderProgam);
+
+	GLint MVPLocation = glGetUniformLocation(currentShaderProgam, "MVP");
+
+	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, value_ptr(MVPMatrix));
+
+	glBindVertexArray(gameObject->getVertexArrayObject());
+	if (gameObject->getVertexArrayObject()>0)
+		glDrawElements(GL_TRIANGLES, gameObject->getNumberOfIndices(), GL_UNSIGNED_INT, 0);
+
 }
 
 int main(int argc, char * arg[])
@@ -409,6 +422,7 @@ int main(int argc, char * arg[])
 		//init Scene
 		update();
 		//render
+		//renderCube();
 		render();
 		//Call swap so that our GL back buffer is displayed
 		SDL_GL_SwapWindow(window);
