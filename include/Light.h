@@ -4,6 +4,8 @@
 #include"Common.h"
 #include "Camera.h"
 #include "GameObject.h"
+#include "Mesh.h"
+#include "Material.h"
 
 class Light
 {
@@ -36,8 +38,6 @@ public:
 		return m_specularPower;
 	};
 
-	void CalculateLighting(Camera& camera, shared_ptr<GameObject>& gameObject);
-	
 
 private:
 
@@ -46,6 +46,7 @@ private:
 	vec4 m_diffuseLightColour;
 	vec4 m_specularLightColour;
 	float m_specularPower;
+
 
 };
 

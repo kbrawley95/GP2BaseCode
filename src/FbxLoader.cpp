@@ -125,7 +125,7 @@ void processAttribute(FbxNodeAttribute * attribute, shared_ptr<GameObject> gameO
 	}
 }
 
-void processMesh(FbxMesh * mesh, shared_ptr<GameObject> gameObject)
+void processMesh(FbxMesh * mesh, shared_ptr<Mesh> newMesh)
 {
 
 	int numVerts = mesh->GetControlPointsCount();
@@ -146,7 +146,7 @@ void processMesh(FbxMesh * mesh, shared_ptr<GameObject> gameObject)
 	processMeshTextureCoords(mesh, pVerts, numVerts);
 	processMeshNormals(mesh, pVerts, numVerts);
 
-	gameObject->createBuffers(pVerts, numVerts, pIndices, numIndices);
+	newMesh->GenerateBuffers(pVerts, numVerts, pIndices, numIndices);
 
 	cout << "Vertices " << numVerts << " Indices " << numIndices << endl;
 

@@ -1,20 +1,32 @@
-#ifndef _Shader_h
-#define _Shader_h
+#ifndef _SHADER_H
+#define _SHADER_H
 
 #include "Common.h"
 
-enum SHADER_TYPE
+class Shader
 {
-VERTEX_SHADER=GL_VERTEX_SHADER,
-FRAGMENT_SHADER=GL_FRAGMENT_SHADER
+public:
+	enum SHADER_TYPE
+	{
+		VERTEX_SHADER = GL_VERTEX_SHADER,
+		FRAGMENT_SHADER = GL_FRAGMENT_SHADER
+	};
+
+	GLuint currentShaderProgram = 0;
+
+	Shader(const std::string& vs, const std::string& fs);
+	~Shader();
+
+	GLuint LoadShaderFromMemory(const char * pMem, SHADER_TYPE shaderType);
+
+	GLuint LoadShaderFromFile(const string& filename, SHADER_TYPE shaderType);
+
+	bool CheckForCompilerErrors(GLuint shaderProgram);
+
+	bool CheckForLinkErrors(GLuint program);
+
+private:
+
 };
-
-GLuint loadShaderFromMemory(const char * pMem, SHADER_TYPE shaderType);
-
-GLuint loadShaderFromFile(const string& filename, SHADER_TYPE shaderType);
-
-bool checkForCompilerErrors(GLuint shaderProgram);
-
-bool checkForLinkErrors(GLuint program);
 
 #endif

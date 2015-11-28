@@ -4,11 +4,6 @@
 
 GameObject::GameObject()
 {
-	m_VBO = 0;
-	m_EBO = 0;
-	m_VAO = 0;
-	m_NoOfIndices = 0;
-	m_NoOfVertices = 0;
 
 	m_ShaderProgram = 0;
 
@@ -16,11 +11,6 @@ GameObject::GameObject()
 	m_Position = vec3(0.0f);
 	m_Rotation = vec3(0.0f);
 	m_Scale = vec3(1.0f);
-
-	m_AmbientMaterial = vec4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_DiffuseMaterial = vec4(0.8f, 0.8f, 0.8f, 1.0f);
-	m_SpecularMaterial = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_SpecularPower = 25.0f;
 
 	m_ChildGameObjects.clear();
 
@@ -62,68 +52,6 @@ void GameObject::addChild(shared_ptr<GameObject> child)
 {
 	child->m_ParentGameObject = this;
 	m_ChildGameObjects.push_back(child);
-}
-
-void GameObject::createBuffers(Vertex * pVerts, int numVerts, int *pIndices, int numIndices)
-{
-	m_NoOfIndices = numIndices;
-	m_NoOfVertices = numVerts;
-
-	//Generate Vertex Array
-	glGenVertexArrays(1, &m_VAO);
-	glBindVertexArray(m_VAO);
-
-	glGenBuffers(1, &m_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-
-	glBufferData(GL_ARRAY_BUFFER, numVerts*sizeof(Vertex), pVerts, GL_STATIC_DRAW);
-
-	//create buffer
-	glGenBuffers(1, &m_EBO);
-	//Make the EBO active
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-	//Copy Index data to the EBO
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices*sizeof(int), pIndices, GL_STATIC_DRAW);
-
-	//Tell the shader that 0 is the position element
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, colour));
-
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
-
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-}
-
-void GameObject::loadShader(const string& vsFilename, const string& fsFilename)
-{
-	GLuint vertexShaderProgram = 0;
-	vertexShaderProgram = loadShaderFromFile(vsFilename, VERTEX_SHADER);
-	checkForCompilerErrors(vertexShaderProgram);
-
-	GLuint fragmentShaderProgram = 0;
-	fragmentShaderProgram = loadShaderFromFile(fsFilename, FRAGMENT_SHADER);
-	checkForCompilerErrors(fragmentShaderProgram);
-
-	m_ShaderProgram = glCreateProgram();
-	glAttachShader(m_ShaderProgram, vertexShaderProgram);
-	glAttachShader(m_ShaderProgram, fragmentShaderProgram);
-
-	//Link attributes
-	glBindAttribLocation(m_ShaderProgram, 0, "vertexPosition");
-	glBindAttribLocation(m_ShaderProgram, 1, "vertexColour");
-	glBindAttribLocation(m_ShaderProgram, 2, "vertexTexCoords");
-	glBindAttribLocation(m_ShaderProgram, 3, "vertexNormal");
-
-	glLinkProgram(m_ShaderProgram);
-	checkForLinkErrors(m_ShaderProgram);
-	//now we can delete the VS & FS Programs
-	glDeleteShader(vertexShaderProgram);
-	glDeleteShader(fragmentShaderProgram);
 }
 
 void GameObject::loadDiffuseMap(const string& filename)

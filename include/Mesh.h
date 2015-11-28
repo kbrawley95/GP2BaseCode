@@ -3,9 +3,12 @@
 
 #include "Vertices.h"
 #include "Common.h"
+#include "Material.h"
 
-struct MeshData
+
+class Mesh
 {
+public:
 	vector<Vertex> vertices;
 	vector<int> indices;
 
@@ -19,11 +22,38 @@ struct MeshData
 		return indices.size();
 	};
 
-	~MeshData()
+	Mesh();
+	~Mesh();
+	
+
+	int getNumberOfIndices()
 	{
-		vertices.clear();
-		indices.clear();
-	}
+		return m_NoOfIndices;
+	};
+
+	int getNumberOfVetices()
+	{
+		return m_NoOfVertices;
+	};
+
+	GLuint getVertexArrayObject()
+	{
+		return m_VAO;
+	};
+
+	void Render(shared_ptr<GameObject> gameObject, shared_ptr<Camera> camera);
+	void GenerateBuffers(Vertex * pVerts, int numVerts, int *pIndices, int numIndices);
+
+private:
+
+	GLuint m_VBO;
+	GLuint m_EBO;
+	GLuint m_VAO;
+
+	GLuint m_NoOfIndices;
+	GLuint m_NoOfVertices;
+
+
 };
 
 

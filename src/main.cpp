@@ -11,6 +11,7 @@
 #include "gameObject.h"
 #include "Cube.h"
 #include "Light.h"
+#include "Mesh.h"
 
 
 mat4 MVPMatrix;
@@ -45,7 +46,9 @@ vec2 screenResolution = vec2(FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 
 Camera camera(vec3(0, 0, -20), 70.0f, (float)screenResolution.x / (float)screenResolution.y, 0.01f, 100.0f);
 shared_ptr<Light> light;
-
+shared_ptr<Mesh> mesh;
+shared_ptr<Shader> shader;
+shared_ptr<Material> material;
 
 void createFramebuffer()
 {
@@ -101,13 +104,13 @@ void createFramebuffer()
 
 	GLuint vertexShaderProgram = 0;
 	string vsPath = ASSET_PATH + SHADER_PATH + "/simplePostProcessVS.glsl";
-	vertexShaderProgram = loadShaderFromFile(vsPath, VERTEX_SHADER);
-	checkForCompilerErrors(vertexShaderProgram);
+	vertexShaderProgram = shader->LoadShaderFromFile(vsPath, shader->VERTEX_SHADER);
+	shader->CheckForCompilerErrors(vertexShaderProgram);
 
 	GLuint fragmentShaderProgram = 0;
 	string fsPath = ASSET_PATH + SHADER_PATH + "/simplePostProcessFS.glsl";
-	fragmentShaderProgram = loadShaderFromFile(fsPath, FRAGMENT_SHADER);
-	checkForCompilerErrors(fragmentShaderProgram);
+	fragmentShaderProgram = shader->LoadShaderFromFile(fsPath, shader->FRAGMENT_SHADER);
+	shader->CheckForCompilerErrors(fragmentShaderProgram);
 
 	fullScreenShaderProgram = glCreateProgram();
 	glAttachShader(fullScreenShaderProgram, vertexShaderProgram);
@@ -117,7 +120,7 @@ void createFramebuffer()
 	glBindAttribLocation(fullScreenShaderProgram, 0, "vertexPosition");
 
 	glLinkProgram(fullScreenShaderProgram);
-	checkForLinkErrors(fullScreenShaderProgram);
+	shader->CheckForLinkErrors(fullScreenShaderProgram);
 	//now we can delete the VS & FS Programs
 	glDeleteShader(vertexShaderProgram);
 	glDeleteShader(fragmentShaderProgram);
@@ -128,13 +131,13 @@ void initScene()
 	createFramebuffer();
 	gameObject = shared_ptr<GameObject>(new GameObject);
 
-	gameObject->createBuffers(gameObjectVerts, numOfgameObjectVerts, gameObjectIndices,numOfgameObjectIndices);
+	mesh->GenerateBuffers(gameObjectVerts, numOfgameObjectVerts, gameObjectIndices,numOfgameObjectIndices);
 	
 	//VS & FS Shaders
 	string vsPath = ASSET_PATH + SHADER_PATH + "/simpleVS.glsl";
 	string fsPath = ASSET_PATH + SHADER_PATH + "/simpleFS.glsl";
 
-	gameObject->loadShader(vsPath, fsPath);
+	shader = shared_ptr<Shader>(new Shader(vsPath, fsPath));
 	gameObjects.push_back(gameObject);
 
 	gameObject->setPosition(vec3(0, 0, -17));
@@ -200,11 +203,11 @@ void renderGameObject(shared_ptr<GameObject> gameObject)
 	glUniform3fv(cameraPositionLocation, 1, value_ptr(camera.Position()));
 
 	//Lighting Calculations
-	light->CalculateLighting(camera, gameObject);
+	material->CalculateLighting(light);
 
-	glBindVertexArray(gameObject->getVertexArrayObject());
-	if (gameObject->getVertexArrayObject()>0)
-		glDrawElements(GL_TRIANGLES, gameObject->getNumberOfIndices(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(mesh->getVertexArrayObject());
+	if (mesh->getVertexArrayObject()>0)
+		glDrawElements(GL_TRIANGLES, mesh->getNumberOfIndices(), GL_UNSIGNED_INT, 0);
 
 	for (int i = 0; i < gameObject->getNumberOfChildren(); i++)
 	{
@@ -278,9 +281,9 @@ void renderCube()
 
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, value_ptr(MVPMatrix));
 
-	glBindVertexArray(gameObject->getVertexArrayObject());
-	if (gameObject->getVertexArrayObject()>0)
-		glDrawElements(GL_TRIANGLES, gameObject->getNumberOfIndices(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(mesh->getVertexArrayObject());
+	if (mesh->getVertexArrayObject()>0)
+		glDrawElements(GL_TRIANGLES, mesh->getNumberOfIndices(), GL_UNSIGNED_INT, 0);
 
 }
 

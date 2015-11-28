@@ -14,8 +14,6 @@ public:
 
 	void addChild(shared_ptr<GameObject> child);
 
-	void createBuffers(Vertex * pVerts, int numVerts, int *pIndices, int numIndices);
-	void loadShader(const string& vsFilename, const string& fsFilename);
 	void loadDiffuseMap(const string& filename);
 
 	void setPosition(const vec3& position)
@@ -48,11 +46,6 @@ public:
 		return m_ChildGameObjects.at(i);
 	};
 
-	GLuint getVertexArrayObject()
-	{
-		return m_VAO;
-	};
-
 	GLuint getShaderProgram()
 	{
 		return m_ShaderProgram;
@@ -63,36 +56,6 @@ public:
 		return m_ModelMatrix;
 	};
 
-	vec4& getAmbientMaterial()
-	{
-		return m_AmbientMaterial;
-	};
-
-	vec4& getDiffuseMaterial()
-	{
-		return m_DiffuseMaterial;
-	};
-
-	vec4& getSpecularMaterial()
-	{
-		return m_SpecularMaterial;
-	};
-
-	float getSpecularPower()
-	{
-		return m_SpecularPower;
-	};
-
-	int getNumberOfIndices()
-	{
-		return m_NoOfIndices;
-	};
-
-	int getNumberOfVetices()
-	{
-		return m_NoOfVertices;
-	};
-
 	GLuint getDiffuseMap()
 	{
 		return m_DiffuseMap;
@@ -100,22 +63,11 @@ public:
 private:
 	
 	GLuint m_ShaderProgram;
-	int m_NoOfIndices;
-	int m_NoOfVertices;
-
-	GLuint m_VBO = 0;
-	GLuint m_EBO = 0;
-	GLuint m_VAO = 0;
 
 	mat4 m_ModelMatrix;
 	vec3 m_Position;
 	vec3 m_Rotation;
 	vec3 m_Scale;
-
-	vec4 m_AmbientMaterial;
-	vec4 m_DiffuseMaterial;
-	vec4 m_SpecularMaterial;
-	float m_SpecularPower;
 
 	GLuint m_DiffuseMap;
 
